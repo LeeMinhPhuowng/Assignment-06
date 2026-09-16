@@ -1,0 +1,30 @@
+﻿# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Framework checkpoints & notebook checkpoints
+*.pt
+*.pth
+*.h5
+*.keras
+.ipynb_checkpoints/
+
+# Datasets (Large binary data files - auto-downloaded by pipeline)
+data/
+*.ubyte
+*.ubyte.gz
+*.gz
+
+# Environments & IDEs
+venv/
+env/
+.venv/
+.idea/
+.vscode/
+
+# Temporary / Scratch files
+scratch/
+scratch_*.png
+test_*.pdf
+test_*.png

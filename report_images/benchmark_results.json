@@ -1,0 +1,26 @@
+{
+    "NumPy_Scratch": {
+        "accuracy": 0.93,
+        "macro_precision": 0.9324836580960287,
+        "macro_recall": 0.9282301656787924,
+        "macro_f1": 0.9292719570093745,
+        "latency_sec": 11.67649320000055,
+        "params": 52138
+    },
+    "Keras_TensorFlow": {
+        "accuracy": 0.9876,
+        "macro_precision": 0.9876763380987678,
+        "macro_recall": 0.9874000871779224,
+        "macro_f1": 0.9874907988391074,
+        "latency_sec": 68.1761170000027,
+        "params": 421930
+    },
+    "PyTorch": {
+        "accuracy": 0.9919,
+        "macro_precision": 0.9919180897782842,
+        "macro_recall": 0.9917648025116655,
+        "macro_f1": 0.9918347494451257,
+        "latency_sec": 194.31900380000297,
+        "params": 421738
+    }
+}
