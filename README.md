@@ -1,12 +1,4 @@
-﻿# Bài tập lớn 04: Nghiên cứu và Thực nghiệm Mạng Nơ-ron Tích chập (CNN)
-
-> **Môn học:** Deep Learning / Thị giác Máy tính  
-> **Tác giả:** LeeMinhPhuowng (phuonglm.663)  
-> **Kho lưu trữ:** [https://github.com/LeeMinhPhuowng/Assignment04](https://github.com/LeeMinhPhuowng/Assignment04)
-
----
-
-## 📌 Giới thiệu tổng quan
+﻿## Giới thiệu tổng quan
 
 Dự án triển khai toàn diện và có hệ thống mô hình Mạng Nơ-ron Tích chập (Convolutional Neural Network - CNN) qua ba cấp độ hiện thực hóa:
 1. **Từ số học thuần túy (NumPy from Scratch):** Tự xây dựng toàn bộ các tầng `Conv2D`, `MaxPool2D`, `ReLU`, `Flatten`, `Dense`, hàm mất mát `SoftmaxCrossEntropy` và bộ tối ưu hóa `Adam` sử dụng kỹ thuật vector hóa ma trận `im2col` và `col2im`.
@@ -15,7 +7,7 @@ Dự án triển khai toàn diện và có hệ thống mô hình Mạng Nơ-ron
 
 ---
 
-## 📊 Bảng đối chuẩn hiệu năng thực nghiệm
+## Bảng đối chuẩn hiệu năng thực nghiệm
 
 | Tiêu chí đối chuẩn | NumPy from Scratch | TensorFlow / Keras | PyTorch |
 | :--- | :---: | :---: | :---: |
@@ -28,12 +20,10 @@ Dự án triển khai toàn diện và có hệ thống mô hình Mạng Nơ-ron
 
 ---
 
-## 📂 Cấu trúc thư mục
+## Cấu trúc thư mục
 
 ```text
-├── BAO_CAO_ASSIGNMENT_04.pdf       # Báo cáo học thuật toàn văn chuẩn in ấn (PDF)
-├── BAO_CAO_ASSIGNMENT_04.html       # Báo cáo học thuật định dạng HTML hỗ trợ MathJax
-├── BAO_CAO_ASSIGNMENT_04.md         # Báo cáo khoa học chi tiết bằng Markdown
+├── BAO_CAO_ASSIGNMENT_04.pdf       # Báo cáo học thuật toàn văn (PDF)
 ├── notebooks/
 │   └── Assignment_04_CNN_Benchmark.ipynb  # Sổ tay Jupyter Notebook thực nghiệm
 ├── src/
@@ -53,13 +43,12 @@ Dự án triển khai toàn diện và có hệ thống mô hình Mạng Nơ-ron
 │   ├── fig4_error_analysis.png
 │   └── benchmark_results.json
 └── scripts/
-    ├── run_experiments.py          # Script chạy toàn bộ thực nghiệm đối chuẩn
-    └── export_html.py              # Script biên dịch Markdown sang HTML
+    └── run_experiments.py          # Script chạy toàn bộ thực nghiệm đối chuẩn
 ```
 
 ---
 
-## 🚀 Hướng dẫn cài đặt và chạy thử
+## Hướng dẫn cài đặt và chạy thử
 
 ### 1. Cài đặt môi trường
 ```bash
