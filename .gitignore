@@ -1,25 +1,10 @@
-﻿# Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Framework checkpoints & notebook checkpoints
-*.pt
-*.pth
-*.h5
-*.keras
+# Framework checkpoints & temporary checkpoints
 .ipynb_checkpoints/
-
-# Datasets (Large binary data files - auto-downloaded by pipeline)
-data/
-*.ubyte
-*.ubyte.gz
-*.gz
-
-# Local report drafts & conversion scripts (excluded from GitHub)
-BAO_CAO_ASSIGNMENT_04.html
-BAO_CAO_ASSIGNMENT_04.md
-scripts/export_html.py
 
 # Environments & IDEs
 venv/

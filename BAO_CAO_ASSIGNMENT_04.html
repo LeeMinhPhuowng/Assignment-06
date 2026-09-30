@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BÁO CÁO KHOA HỌC: MẠNG NƠ-RON HỒI QUY (RNN, LSTM, GRU) TRONG DỰ BÁO CHUỖI THỜI GIAN VÀ TRIỂN KHAI THỜI GIAN THỰC</title>
+    
+    <!-- Cấu hình MathJax 3 cho cả Display Math ($$) và Inline Math ($) -->
+    <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: { fontCache: 'global' }
+    };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+            @bottom-center {
+                content: counter(page);
+                font-family: 'Times New Roman', Times, serif;
+                font-size: 10pt;
+                color: #000000;
+            }
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #000000 !important;
+            background-color: #FFFFFF !important;
+            margin: 0 auto;
+            padding: 40px;
+            max-width: 900px;
+        }
+        hr { display: none !important; }
+        h1, h2, h3, h4, h5, h6 {
+            color: #000000 !important;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: bold;
+            border-bottom: none !important;
+            padding-bottom: 0 !important;
+            margin-top: 1.4em;
+            margin-bottom: 0.6em;
+            page-break-after: avoid;
+        }
+        h1 { 
+            font-size: 16pt; 
+            text-transform: uppercase; 
+            margin-top: 1.8em; 
+        }
+        h2 { font-size: 14pt; text-transform: uppercase; margin-top: 1.5em; }
+        h3 { font-size: 13pt; }
+        h4 { font-size: 12pt; font-style: italic; }
+        
+        /* CĂN ĐỀU VĂN BẢN VÀ KHẮC PHỤC KHOẢNG CÁCH THƯA */
+        p { 
+            color: #000000 !important; 
+            text-align: justify; 
+            text-justify: inter-word;
+            margin-bottom: 0.8em; 
+        }
+        /* Căn trái tự nhiên cho danh sách liệt kê để không bao giờ bị giãn khoảng cách chữ thưa */
+        li { 
+            color: #000000 !important; 
+            text-align: left !important; 
+            margin-bottom: 0.6em; 
+            line-height: 1.6;
+        }
+        ul, ol {
+            margin-bottom: 1em;
+            padding-left: 28px;
+        }
+        
+        /* ĐỊNH DẠNG MỤC LỤC: KHÔNG GẠCH CHÂN, MÀU ĐEN THUẦN */
+        .toc-container, #table-of-contents {
+            margin-bottom: 35px;
+        }
+        .toc-container a, 
+        #table-of-contents a, 
+        #muc-luc-chi-tiet ~ ul a,
+        .toc a {
+            color: #000000 !important;
+            text-decoration: none !important;
+        }
+        .toc-container a:hover, 
+        #table-of-contents a:hover, 
+        #muc-luc-chi-tiet ~ ul a:hover {
+            text-decoration: underline !important;
+        }
+        .toc-container ul, #table-of-contents ul {
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        /* Khối hiển thị công thức toán học */
+        .math-display {
+            text-align: center;
+            margin: 15px 0;
+            overflow-x: auto;
+            page-break-inside: avoid;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 11pt;
+            color: #000000 !important;
+            background-color: #FFFFFF !important;
+            page-break-inside: avoid;
+        }
+        th, td {
+            border: 1px solid #000000 !important;
+            padding: 8px 10px;
+            text-align: left;
+            color: #000000 !important;
+            background-color: #FFFFFF !important;
+        }
+        th { font-weight: bold; background-color: #FFFFFF !important; text-align: center; }
+        
+        /* ĐỊNH DẠNG KHỐI MÃ NGUỒN VÀ INLINE CODE */
+        pre, code {
+            font-family: 'Courier New', Courier, monospace;
+            color: #000000 !important;
+            background-color: #FFFFFF !important;
+        }
+        pre {
+            border: 1px solid #000000;
+            padding: 12px;
+            overflow-x: auto;
+            font-size: 10pt;
+            line-height: 1.4;
+            margin: 15px 0;
+            page-break-inside: avoid;
+            background-color: #FFFFFF !important;
+        }
+        code { 
+            font-size: 10pt; 
+            padding: 1px 4px; 
+            word-break: break-word;
+        }
+        pre code {
+            padding: 0;
+            word-break: normal;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            border: 1px solid #000000;
+        }
+        blockquote {
+            margin: 15px 0;
+            padding: 10px 20px;
+            border-left: 3px solid #000000;
+            color: #000000 !important;
+            background-color: #FFFFFF !important;
+            font-style: italic;
+        }
+        a { 
+            color: #000000 !important; 
+            text-decoration: none; 
+        }
+        
+        @media print {
+            body { padding: 0; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div id="table-of-contents" class="toc-container">
+<h2 id="muc-luc-chi-tiet">MỤC LỤC CHI TIẾT</h2>
+<ul>
+<li><a href="#chương-1-các-khái-niệm-cơ-bản-và-nền-tảng-toán-học-của-mạng-nơ-ron-hồi-quy">CHƯƠNG 1: CÁC KHÁI NIỆM CƠ BẢN VÀ NỀN TẢNG TOÁN HỌC CỦA MẠNG NƠ-RON HỒI QUY</a><ul>
+<li><a href="#11-bản-chất-dữ-liệu-tuần-tự-và-giới-hạn-của-mạng-nơ-ron-truyền-thẳng">1.1. Bản chất dữ liệu tuần tự và giới hạn của mạng nơ-ron truyền thẳng</a></li>
+<li><a href="#12-cơ-chế-hồi-quy-bộ-nhớ-nội-tại-và-trạng-thái-ẩn">1.2. Cơ chế hồi quy, bộ nhớ nội tại và trạng thái ẩn</a></li>
+<li><a href="#13-nguyên-lý-chia-sẻ-tham-số-qua-không-gian-và-thời-gian">1.3. Nguyên lý chia sẻ tham số qua không gian và thời gian</a></li>
+<li><a href="#14-biểu-diễn-hàm-toán-học-và-sơ-đồ-cuộn-mở-đồ-thị-tính-toán">1.4. Biểu diễn hàm toán học và sơ đồ cuộn mở đồ thị tính toán</a></li>
+<li><a href="#15-giải-thuật-lan-truyền-ngược-qua-thời-gian-bptt">1.5. Giải thuật lan truyền ngược qua thời gian (BPTT)</a></li>
+<li><a href="#16-hiện-tượng-triệt-tiêu-và-bùng-nổ-đạo-hàm">1.6. Hiện tượng triệt tiêu và bùng nổ đạo hàm</a></li>
+<li><a href="#17-các-kiến-trúc-tiến-hóa-mạng-lstm-và-mạng-gru">1.7. Các kiến trúc tiến hóa: Mạng LSTM và Mạng GRU</a></li>
+<li><a href="#18-cài-đặt-mô-hình-hồi-quy-thuần-túy-từ-đầu-bằng-numpy">1.8. Cài đặt mô hình hồi quy thuần túy từ đầu bằng NumPy</a></li>
+</ul>
+</li>
+<li><a href="#chương-2-đặc-tả-hai-tập-dữ-liệu-thực-nghiệm-và-phân-tích-phân-bố-thống-kê">CHƯƠNG 2: ĐẶC TẢ HAI TẬP DỮ LIỆU THỰC NGHIỆM VÀ PHÂN TÍCH PHÂN BỐ THỐNG KÊ</a><ul>
+<li><a href="#21-tập-dữ-liệu-1-chuỗi-thời-gian-thị-trường-chứng-khoán">2.1. Tập dữ liệu 1: Chuỗi thời gian thị trường chứng khoán</a></li>
+<li><a href="#22-phân-tích-phân-phối-lợi-suất-tính-bất-đối-xứng-và-độ-biến-động-cổ-phiếu">2.2. Phân tích phân phối lợi suất, tính bất đối xứng và độ biến động cổ phiếu</a></li>
+<li><a href="#23-tập-dữ-liệu-2-chuỗi-thời-gian-giá-vàng-thế-giới-qua-các-chu-kỳ-kinh-tế">2.3. Tập dữ liệu 2: Chuỗi thời gian giá vàng thế giới qua các chu kỳ kinh tế</a></li>
+<li><a href="#24-phân-tích-xu-thế-dài-hạn-đường-trung-bình-động-và-độ-biến-động-giá-vàng">2.4. Phân tích xu thế dài hạn, đường trung bình động và độ biến động giá vàng</a></li>
+<li><a href="#25-phân-tích-hàm-tự-tương-quan-acf-và-độ-trễ-thời-gian">2.5. Phân tích hàm tự tương quan (ACF) và độ trễ thời gian</a></li>
+<li><a href="#26-quy-trình-phân-tách-chuỗi-thời-gian-và-trích-xuất-cửa-sổ-trượt-chống-rò-rỉ-thông-tin">2.6. Quy trình phân tách chuỗi thời gian và trích xuất cửa sổ trượt chống rò rỉ thông tin</a></li>
+</ul>
+</li>
+<li><a href="#chương-3-xây-dựng-mô-hình-với-pytorch-để-dự-đoán">CHƯƠNG 3: XÂY DỰNG MÔ HÌNH VỚI PYTORCH ĐỂ DỰ ĐOÁN</a><ul>
+<li><a href="#31-triết-lý-thiết-kế-module-hướng-đối-tượng-trong-pytorch">3.1. Triết lý thiết kế module hướng đối tượng trong PyTorch</a></li>
+<li><a href="#32-cấu-trúc-đóng-gói-dữ-liệu-với-dataset-và-dataloader-chuỗi-thời-gian">3.2. Cấu trúc đóng gói dữ liệu với Dataset và DataLoader chuỗi thời gian</a></li>
+<li><a href="#33-xây-dựng-kiến-trúc-mô-hình-hồi-quy-đa-lớp-linh-hoạt">3.3. Xây dựng kiến trúc mô hình hồi quy đa lớp linh hoạt</a></li>
+<li><a href="#34-vòng-lặp-huấn-luyện-tường-minh-kiểm-soát-gradient-clipping-và-tối-ưu-adamw">3.4. Vòng lặp huấn luyện tường minh, kiểm soát Gradient Clipping và tối ưu AdamW</a></li>
+<li><a href="#35-đánh-giá-chất-lượng-dự-đoán-trên-tập-kiểm-thử-độc-lập">3.5. Đánh giá chất lượng dự đoán trên tập kiểm thử độc lập</a></li>
+</ul>
+</li>
+<li><a href="#chương-4-xây-dựng-mô-hình-với-tensorflow-và-keras-để-dự-đoán">CHƯƠNG 4: XÂY DỰNG MÔ HÌNH VỚI TENSORFLOW VÀ KERAS ĐỂ DỰ ĐOÁN</a><ul>
+<li><a href="#41-kiến-trúc-mô-hình-tuần-tự-với-keras-sequential-api">4.1. Kiến trúc mô hình tuần tự với Keras Sequential API</a></li>
+<li><a href="#42-cấu-hình-hệ-thống-callbacks-giám-sát-huấn-luyện-tự-động">4.2. Cấu hình hệ thống Callbacks giám sát huấn luyện tự động</a></li>
+<li><a href="#43-mã-nguồn-xây-dựng-và-huấn-luyện-mô-hình-keras">4.3. Mã nguồn xây dựng và huấn luyện mô hình Keras</a></li>
+<li><a href="#44-phân-tích-tham-số-mạng-và-cơ-chế-tính-toán-nội-tại-của-tầng-hồi-quy">4.4. Phân tích tham số mạng và cơ chế tính toán nội tại của tầng hồi quy</a></li>
+</ul>
+</li>
+<li><a href="#chương-5-triển-khai-mô-hình-phục-vụ-suy-luận-thời-gian-thực-deployment">CHƯƠNG 5: TRIỂN KHAI MÔ HÌNH PHỤC VỤ SUY LUẬN THỜI GIAN THỰC (DEPLOYMENT)</a><ul>
+<li><a href="#51-kiến-trúc-tổng-thể-hệ-thống-suy-luận-dự-báo-trong-môi-trường-sản-xuất">5.1. Kiến trúc tổng thể hệ thống suy luận dự báo trong môi trường sản xuất</a></li>
+<li><a href="#52-đóng-gói-engine-suy-luận-và-chuẩn-hóa-độc-lập">5.2. Đóng gói Engine suy luận và chuẩn hóa độc lập</a></li>
+<li><a href="#53-triển-khai-rest-api-với-fastapi-cho-mô-hình-pytorch">5.3. Triển khai REST API với FastAPI cho mô hình PyTorch</a></li>
+<li><a href="#54-triển-khai-rest-api-với-fastapi-cho-mô-hình-keras">5.4. Triển khai REST API với FastAPI cho mô hình Keras</a></li>
+<li><a href="#55-cơ-chế-dự-báo-tự-hồi-quy-đa-bước-tương-lai-autoregressive-rollout">5.5. Cơ chế dự báo tự hồi quy đa bước tương lai (Autoregressive Rollout)</a></li>
+</ul>
+</li>
+<li><a href="#chương-6-tổng-hợp-đối-chuẩn-thực-nghiệm-và-phân-tích-chuyên-sâu">CHƯƠNG 6: TỔNG HỢP ĐỐI CHUẨN THỰC NGHIỆM VÀ PHÂN TÍCH CHUYÊN SÂU</a><ul>
+<li><a href="#61-bảng-đối-chuẩn-hiệu-năng-toàn-diện-trên-hai-tập-dữ-liệu">6.1. Bảng đối chuẩn hiệu năng toàn diện trên hai tập dữ liệu</a></li>
+<li><a href="#62-động-học-hội-tụ-và-độ-ổn-định-của-các-đường-cong-học-tập">6.2. Động học hội tụ và độ ổn định của các đường cong học tập</a></li>
+<li><a href="#63-khảo-sát-quỹ-đạo-dự-đoán-và-sai-số-phân-phối-ngoại-suy">6.3. Khảo sát quỹ đạo dự đoán và sai số phân phối ngoại suy</a></li>
+<li><a href="#64-đánh-giá-sự-đánh-đổi-giữa-độ-chính-xác-và-độ-trễ-tính-toán-phục-vụ-sản-xuất">6.4. Đánh giá sự đánh đổi giữa độ chính xác và độ trễ tính toán phục vụ sản xuất</a></li>
+</ul>
+</li>
+<li><a href="#chương-7-kết-luận-và-bài-học-thiết-kế-hệ-thống">CHƯƠNG 7: KẾT LUẬN VÀ BÀI HỌC THIẾT KẾ HỆ THỐNG</a><ul>
+<li><a href="#71-đánh-đổi-giữa-quyền-kiểm-soát-toán-học-và-tốc-độ-phát-triển-công-nghiệp">7.1. Đánh đổi giữa quyền kiểm soát toán học và tốc độ phát triển công nghiệp</a></li>
+<li><a href="#72-lựa-chọn-kiến-trúc-mạng-vanilla-rnn-gru-hay-lstm-trong-bối-cảnh-thực-tế">7.2. Lựa chọn kiến trúc mạng: Vanilla RNN, GRU hay LSTM trong bối cảnh thực tế</a></li>
+<li><a href="#73-khuyến-nghị-thiết-kế-pipeline-dự-báo-dữ-liệu-tài-chính-và-kim-loại-quý">7.3. Khuyến nghị thiết kế pipeline dự báo dữ liệu tài chính và kim loại quý</a></li>
+<li><a href="#74-quy-trình-đóng-gói-và-triển-khai-mô-hình-phục-vụ-suy-luận-thời-gian-thực">7.4. Quy trình đóng gói và triển khai mô hình phục vụ suy luận thời gian thực</a></li>
+</ul>
+</li>
+</ul>
+<p>Kho lưu trữ mã nguồn và triển khai hệ thống: <a href="https://github.com/LeeMinhPhuowng/Assignment-06">https://github.com/LeeMinhPhuowng/Assignment-06</a></p>
+
+</div><h1 id="chuong-1-cac-khai-niem-co-ban-va-nen-tang-toan-hoc-cua-mang-no-ron-hoi-quy">CHƯƠNG 1: CÁC KHÁI NIỆM CƠ BẢN VÀ NỀN TẢNG TOÁN HỌC CỦA MẠNG NƠ-RON HỒI QUY</h1>
+<h3 id="11-ban-chat-du-lieu-tuan-tu-va-gioi-han-cua-mang-no-ron-truyen-thang">1.1. Bản chất dữ liệu tuần tự và giới hạn của mạng nơ-ron truyền thẳng</h3>
+<p>Trong lý thuyết học máy truyền thống, các thuật toán phân lớp và hồi quy thường giả định rằng các mẫu dữ liệu quan sát được lấy mẫu độc lập và có cùng phân phối (Independent and Identically Distributed - i.i.d.):</p>
+<div class="math-display">$$P(x_1, x_2, \dots, x_N) = \prod_{i=1}^N P(x_i)$$</div>
+<p>Tuy nhiên, trong các bài toán thực tiễn như chuỗi giá chứng khoán, giá kim loại quý, tín hiệu cảm biến IoT hay chuỗi từ ngữ trong ngôn ngữ tự nhiên, giả định i.i.d. hoàn toàn bị vi phạm. Một điểm dữ liệu $x_t$ tại bước thời gian $t$ luôn mang mối tương quan mật thiết với các điểm dữ liệu xuất hiện trước nó $(x_{t-1}, x_{t-2}, \dots, x_1)$. </p>
+<p>Các mạng nơ-ron truyền thẳng truyền thống (Multi-Layer Perceptrons - MLP) tiếp nhận một vector đầu vào có chiều cố định $x \in \mathbb{R}^D$ và ánh xạ trực tiếp sang vector đầu ra $\hat{y} \in \mathbb{R}^K$ thông qua phép nhân ma trận kết hợp kích hoạt phi tuyến:</p>
+<div class="math-display">$$\hat{y} = f(W_L \cdot \sigma(W_{L-1} \dots \sigma(W_1 x + b_1) \dots + b_{L-1}) + b_L)$$</div>
+<p>Mô hình hóa này gặp phải ba rào cản nền tảng khi đối mặt với dữ liệu chuỗi:</p>
+<ul>
+<li>Chiều dài chuỗi biến thiên: MLP yêu cầu kích thước vector đầu vào phải cố định trước, không thể tiếp nhận các chuỗi thời gian có độ dài thay đổi linh hoạt.</li>
+<li>Thiếu cơ chế chia sẻ thông tin vị trí: Khi duỗi phẳng một chuỗi thời gian thành một vector dài, các trọng số nối với vị trí $t_1$ hoàn toàn độc lập với các trọng số nối với vị trí $t_2$, khiến mạng không thể khái quát hóa các mô thức (patterns) có tính chất bất biến tịnh tiến theo thời gian.</li>
+<li>Bùng nổ tham số: Khi chuỗi có độ dài lớn $T$, số lượng tham số của ma trận trọng số tầng đầu vào $W_1 \in \mathbb{R}^{H \times (T \cdot D)}$ tăng tuyến tính theo chiều dài chuỗi, dẫn đến nguy cơ quá khớp cực kỳ nghiêm trọng.</li>
+</ul>
+<h3 id="12-co-che-hoi-quy-bo-nho-noi-tai-va-trang-thai-an">1.2. Cơ chế hồi quy, bộ nhớ nội tại và trạng thái ẩn</h3>
+<p>Để vượt qua giới hạn của mạng truyền thẳng, mạng nơ-ron hồi quy (Recurrent Neural Network - RNN) đưa vào cấu trúc một vòng lặp phản hồi (recurrent loop). Tại mỗi bước thời gian $t$, mạng duy trì một vector trạng thái ẩn (hidden state) $h_t \in \mathbb{R}^H$. Trạng thái ẩn đóng vai trò như một bộ nhớ nội tại (internal memory), tổng hợp và chưng cất toàn bộ thông tin lịch sử từ các bước thời gian quá khứ $x_1, x_2, \dots, x_t$.</p>
+<p>Cơ chế cập nhật trạng thái ẩn được biểu diễn như một hàm chuyển tiếp trạng thái:</p>
+<div class="math-display">$$h_t = f_{recurrent}(h_{t-1}, x_t; \theta)$$</div>
+<p>Trong đó $h_{t-1}$ là thông tin tóm tắt quá khứ đến thời điểm $t-1$, $x_t$ là vector quan sát mới tại thời điểm $t$, và $\theta$ là tập tham số có thể học được của mạng. Nhờ cơ chế chuyển trạng thái đệ quy này, trạng thái ẩn $h_t$ về mặt lý thuyết chứa đựng thông tin của một chuỗi lịch sử có độ dài tùy ý mà không làm thay đổi kích thước của vector biểu diễn.</p>
+<h3 id="13-nguyen-ly-chia-se-tham-so-qua-khong-gian-va-thoi-gian">1.3. Nguyên lý chia sẻ tham số qua không gian và thời gian</h3>
+<p>Trụ cột cốt lõi làm nên sức mạnh và khả năng khái quát hóa của mạng hồi quy chính là nguyên lý chia sẻ tham số (parameter sharing across time). Thay vì gán một ma trận trọng số riêng biệt cho từng bước thời gian, RNN sử dụng chung một bộ trọng số duy nhất $\theta = \{W_{xh}, W_{hh}, W_{hy}, b_h, b_y\}$ cho toàn bộ các bước thời gian $t = 1, 2, \dots, T$.</p>
+<p>Ý nghĩa toán học và tính toán của việc chia sẻ tham số:</p>
+<ul>
+<li>Giảm số lượng tham số độc lập: Số lượng tham số của mạng trở nên độc lập tuyệt đối với chiều dài chuỗi $T$, loại bỏ hoàn toàn hiện tượng bùng nổ tham số khi xử lý các chuỗi thời gian dài.</li>
+<li>Học biểu diễn bất biến thời gian: Mạng có khả năng nhận diện một mô thức đặc trưng (chẳng hạn một mô hình đảo chiều giá trên thị trường tài chính) bất kể mô thức đó xuất hiện tại đầu chuỗi, giữa chuỗi hay cuối chuỗi.</li>
+<li>Khả năng suy luận trên chuỗi có độ dài chưa từng thấy: Mô hình được huấn luyện trên chuỗi có độ dài $T_{train}$ hoàn toàn có thể thực thi suy luận trên chuỗi có độ dài $T_{test} \neq T_{train}$.</li>
+</ul>
+<h3 id="14-bieu-dien-ham-toan-hoc-va-so-o-cuon-mo-o-thi-tinh-toan">1.4. Biểu diễn hàm toán học và sơ đồ cuộn mở đồ thị tính toán</h3>
+<p>Về mặt giải tích, mạng Vanilla RNN thực thi phép toán tổng hợp thông tin qua hai phương trình cơ bản tại mỗi bước thời gian $t$:</p>
+<div class="math-display">$$a_t = W_{hh} h_{t-1} + W_{xh} x_t + b_h$$</div>
+<div class="math-display">$$h_t = \tanh(a_t) = \frac{e^{a_t} - e^{-a_t}}{e^{a_t} + e^{-a_t}}$$</div>
+<p>Trong đó:</p>
+<ul>
+<li>$x_t \in \mathbb{R}^{D \times 1}$ là vector đặc trưng đầu vào tại bước $t$.</li>
+<li>$h_{t-1} \in \mathbb{R}^{H \times 1}$ là vector trạng thái ẩn của bước trước đó.</li>
+<li>$W_{xh} \in \mathbb{R}^{H \times D}$ là ma trận trọng số kết nối đầu vào với trạng thái ẩn.</li>
+<li>$W_{hh} \in \mathbb{R}^{H \times H}$ là ma trận trọng số chuyển tiếp giữa các trạng thái ẩn liên tiếp.</li>
+<li>$b_h \in \mathbb{R}^{H \times 1}$ là vector điều chỉnh độ lệch (bias).</li>
+<li>$\tanh(\cdot)$ là hàm kích hoạt phi tuyến ánh xạ toàn bộ miền giá trị thực về khoảng $(-1, 1)$.</li>
+</ul>
+<p>Vector đầu ra dự đoán tại bước $t$ (hoặc tại bước cuối cùng $T$) được tính toán bằng cách chiếu trạng thái ẩn sang không gian đích:</p>
+<div class="math-display">$$\hat{y}_t = g(W_{hy} h_t + b_y)$$</div>
+<p>Trong bài toán hồi quy chuỗi thời gian đơn biến hoặc đa biến, hàm $g(\cdot)$ là hàm đồng nhất tuyến tính $g(z) = z$, khi đó:</p>
+<div class="math-display">$$\hat{y}_t = W_{hy} h_t + b_y$$</div>
+<p>Trong đó $W_{hy} \in \mathbb{R}^{K \times H}$ và $b_y \in \mathbb{R}^{K \times 1}$.</p>
+<p><img alt="Hình 6: Sơ đồ toán học cuộn mở mạng nơ-ron hồi quy qua thời gian" src="report_images/fig6_sliding_window_architecture.png" /></p>
+<p>Biểu đồ Hình 6 minh họa trực quan quá trình cuộn mở (unrolling/unfolding) của đồ thị tính toán hồi quy theo dòng thời gian. Mặc dù cấu trúc mạng có thể được biểu diễn cô đọng như một ô nơ-ron tự phản hồi, việc cuộn mở đồ thị tính toán giúp chuyển đổi đồ thị chu trình thành một đồ thị có hướng không chu trình (Directed Acyclic Graph - DAG) với chiều dài $T$, mở đường cho việc áp dụng quy tắc dây chuyền để tính đạo hàm lan truyền ngược.</p>
+<h3 id="15-giai-thuat-lan-truyen-nguoc-qua-thoi-gian-bptt">1.5. Giải thuật lan truyền ngược qua thời gian (BPTT)</h3>
+<p>Để tối ưu hóa các ma trận trọng số $W_{xh}, W_{hh}, W_{hy}$ và các vector bias $b_h, b_y$, giải thuật lan truyền ngược qua thời gian (Backpropagation Through Time - BPTT) được áp dụng. Giả sử hàm mất mát tổng thể trên toàn bộ chuỗi thời gian có độ dài $T$ được định nghĩa bằng tổng các mất mát cục bộ:</p>
+<div class="math-display">$$\mathcal{L} = \sum_{t=1}^T \mathcal{L}_t(y_t, \hat{y}_t)$$</div>
+<p>Xét trường hợp hàm mất mát sai số bình phương trung bình (MSE):</p>
+<div class="math-display">$$\mathcal{L}_t = \frac{1}{2} \| y_t - \hat{y}_t \|_2^2$$</div>
+<p>Đạo hàm của hàm mất mát đối với ma trận trọng số đầu ra $W_{hy}$ phụ thuộc trực tiếp vào trạng thái ẩn tại từng bước thời gian:</p>
+<div class="math-display">$$\frac{\partial \mathcal{L}}{\partial W_{hy}} = \sum_{t=1}^T \frac{\partial \mathcal{L}_t}{\partial \hat{y}_t} \cdot \frac{\partial \hat{y}_t}{\partial W_{hy}} = \sum_{t=1}^T (\hat{y}_t - y_t) h_t^T$$</div>
+<p>Ngược lại, việc tính toán đạo hàm theo ma trận hồi quy $W_{hh}$ phức tạp hơn nhiều vì trạng thái ẩn $h_t$ không chỉ phụ thuộc vào $W_{hh}$ ở bước $t$, mà còn phụ thuộc thông qua trạng thái $h_{t-1}$, vốn lại phụ thuộc vào $h_{t-2}$, kéo dài ngược về $h_0$. Áp dụng quy tắc dây chuyền nhiều biến:</p>
+<div class="math-display">$$\frac{\partial \mathcal{L}}{\partial W_{hh}} = \sum_{t=1}^T \sum_{k=1}^t \frac{\partial \mathcal{L}_t}{\partial h_t} \cdot \frac{\partial h_t}{\partial h_k} \cdot \frac{\partial^+ h_k}{\partial W_{hh}}$$</div>
+<p>Trong đó $\frac{\partial^+ h_k}{\partial W_{hh}}$ biểu diễn đạo hàm cục bộ của $h_k$ theo $W_{hh}$ (coi $h_{k-1}$ là hằng số):</p>
+<div class="math-display">$$\frac{\partial^+ h_k}{\partial W_{hh}} = \text{diag}(1 - h_k^2) h_{k-1}^T$$</div>
+<p>Thành phần then chốt quyết định dòng chảy đạo hàm qua thời gian là đạo hàm riêng ma trận Jacobi $\frac{\partial h_t}{\partial h_k}$:</p>
+<div class="math-display">$$\frac{\partial h_t}{\partial h_k} = \prod_{j=k+1}^t \frac{\partial h_j}{\partial h_{j-1}} = \prod_{j=k+1}^t W_{hh}^T \cdot \text{diag}(1 - h_j^2)$$</div>
+<h3 id="16-hien-tuong-triet-tieu-va-bung-no-ao-ham">1.6. Hiện tượng triệt tiêu và bùng nổ đạo hàm</h3>
+<p>Phương trình tích chuỗi ma trận Jacobi ở trên là nguồn gốc toán học trực tiếp của hai vấn đề nan giải bậc nhất trong huấn luyện mạng hồi quy:</p>
+<ol>
+<li>Triệt tiêu đạo hàm (Vanishing Gradient):
+Hàm kích hoạt $\tanh(z)$ có đạo hàm nằm trong khoảng $0 < \tanh'(z) \le 1$. Khi mạng học được các trọng số có phổ trị riêng (eigenvalue spectrum) của ma trận $W_{hh}$ nhỏ hơn 1 (tức bán kính phổ $\rho(W_{hh}) < 1$), tích liên tiếp của các ma trận:</li>
+</ol>
+<div class="math-display">$$\left\| \prod_{j=k+1}^t \frac{\partial h_j}{\partial h_{j-1}} \right\| \le \prod_{j=k+1}^t \| W_{hh}^T \| \cdot \| \text{diag}(1 - h_j^2) \| \le (\gamma \cdot \lambda_{max})^{t-k}$$</div>
+<p>Khi khoảng cách thời gian $(t - k)$ tăng lên, đại lượng này suy giảm theo hàm mũ về 0. Hệ quả là thông tin sai số tại thời điểm $t$ không thể truyền ngược về các bước thời gian xa trong quá khứ $k \ll t$. Mạng mất hoàn toàn khả năng ghi nhớ và học các mối phụ thuộc dài hạn (long-term dependencies).</p>
+<ol>
+<li>Bùng nổ đạo hàm (Exploding Gradient):
+Nếu bán kính phổ $\rho(W_{hh}) > 1$ và các trạng thái nơ-ron hoạt động trong vùng tuyến tính của hàm tanh ($\tanh'(z) \approx 1$), tích ma trận Jacobi tăng theo cấp số nhân theo chiều dài chuỗi:</li>
+</ol>
+<div class="math-display">$$\left\| \frac{\partial h_t}{\partial h_k} \right\| \to \infty \quad \text{khi } (t - k) \to \infty$$</div>
+<p>Hiện tượng này khiến giá trị gradient trong quá trình cập nhật vượt ra ngoài phạm vi biểu diễn dấu phẩy động (gây ra lỗi NaN hoặc Inf), làm rung lắc dữ dội quỹ đạo tối ưu hóa trọng số. </p>
+<p>Giải pháp kiểm soát:</p>
+<ul>
+<li>Kỹ thuật cắt tỉa đạo hàm (Gradient Clipping): Cắt tỉa độ dài chuẩn L2 của vector gradient nếu nó vượt quá ngưỡng $\tau$:</li>
+</ul>
+<div class="math-display">$$g \leftarrow g \cdot \frac{\tau}{\max(\tau, \|g\|_2)}$$</div>
+<ul>
+<li>Khởi tạo trực giao (Orthogonal Initialization): Khởi tạo $W_{hh}$ sao cho $W_{hh}^T W_{hh} = I$, duy trì trị riêng của ma trận xấp xỉ 1 ở giai đoạn đầu huấn luyện.</li>
+<li>Thay đổi kiến trúc tế bào: Sử dụng các cơ chế kiểm soát cổng (gating mechanism) như trong mạng LSTM và GRU.</li>
+</ul>
+<h3 id="17-cac-kien-truc-tien-hoa-mang-lstm-va-mang-gru">1.7. Các kiến trúc tiến hóa: Mạng LSTM và Mạng GRU</h3>
+<h4 id="1-long-short-term-memory-lstm">1. Long Short-Term Memory (LSTM)</h4>
+<p>Được đề xuất bởi Hochreiter và Schmidhuber (1997), LSTM giải quyết triệt để bài toán triệt tiêu đạo hàm bằng cách thiết kế một kênh truyền dẫn thông tin riêng biệt gọi là trạng thái ô nhớ (Cell State) $c_t$, đóng vai trò như một tuyến đường cao tốc thông tin chạy dọc theo toàn bộ chuỗi thời gian với sự can thiệp tối thiểu của các phép nhân ma trận liên tiếp.</p>
+<p>Dòng thông tin trong ô LSTM được điều tiết bởi ba cổng nơ-ron có hàm kích hoạt sigmoid $\sigma(z) \in (0, 1)$:</p>
+<div class="math-display">$$\text{Cổng quên (Forget Gate):} \quad f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)$$</div>
+<div class="math-display">$$\text{Cổng vào (Input Gate):} \quad i_t = \sigma(W_i [h_{t-1}, x_t] + b_i)$$</div>
+<div class="math-display">$$\text{Ứng viên trạng thái ô nhớ:} \quad \tilde{c}_t = \tanh(W_c [h_{t-1}, x_t] + b_c)$$</div>
+<div class="math-display">$$\text{Cập nhật trạng thái ô nhớ:} \quad c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t$$</div>
+<div class="math-display">$$\text{Cổng ra (Output Gate):} \quad o_t = \sigma(W_o [h_{t-1}, x_t] + b_o)$$</div>
+<div class="math-display">$$\text{Trạng thái ẩn đầu ra:} \quad h_t = o_t \odot \tanh(c_t)$$</div>
+<p>Trong đó ký hiệu $\odot$ đại diện cho phép nhân Hadamard (nhân từng phần tử tương ứng giữa hai tensor). Phép cập nhật $c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t$ là phép cộng trực tiếp. Khi cổng quên $f_t \approx 1$, gradient có thể chảy ngược nguyên vẹn qua ô nhớ $\frac{\partial c_t}{\partial c_{t-1}} \approx 1$ mà không bị suy giảm theo hàm mũ, giải quyết triệt để hiện tượng triệt tiêu đạo hàm trên các chuỗi hàng trăm bước thời gian.</p>
+<h4 id="2-gated-recurrent-unit-gru">2. Gated Recurrent Unit (GRU)</h4>
+<p>Được đề xuất bởi Cho et al. (2014), GRU là một biến thể tinh giản của LSTM, hợp nhất trạng thái ô nhớ $c_t$ và trạng thái ẩn $h_t$ thành một vector trạng thái duy nhất, đồng thời thu gọn hệ thống điều khiển xuống còn hai cổng:</p>
+<div class="math-display">$$\text{Cổng đặt lại (Reset Gate):} \quad r_t = \sigma(W_r [h_{t-1}, x_t] + b_r)$$</div>
+<div class="math-display">$$\text{Cổng cập nhật (Update Gate):} \quad z_t = \sigma(W_z [h_{t-1}, x_t] + b_z)$$</div>
+<div class="math-display">$$\text{Trạng thái ứng viên:} \quad \tilde{h}_t = \tanh(W_h [r_t \odot h_{t-1}, x_t] + b_h)$$</div>
+<div class="math-display">$$\text{Cập nhật trạng thái ẩn:} \quad h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$</div>
+<p>Nhờ cấu trúc gọn nhẹ hơn với số lượng tham số ít hơn khoảng $25\%$ so với LSTM, GRU đạt được tốc độ tính toán và suy luận nhanh hơn đáng kể trong khi vẫn duy trì năng lực lưu trữ ký ức dài hạn tương đương trên nhiều miền bài toán thực tế.</p>
+<h3 id="18-cai-at-mo-hinh-hoi-quy-thuan-tuy-tu-au-bang-numpy">1.8. Cài đặt mô hình hồi quy thuần túy từ đầu bằng NumPy</h3>
+<p>Nhằm kiểm chứng tường minh giải thuật giải tích ở trên, nghiên cứu tiến hành cài đặt hoàn chỉnh một mạng Vanilla RNN từ đầu bằng ngôn ngữ Python và thư viện NumPy. Module bao gồm đầy đủ luồng tính toán tiến (Forward pass), tính toán mất mát MSE, luồng tính toán lùi (Backward pass qua thời gian - BPTT) với việc tự đạo hàm tường minh các tensor trọng số và cơ chế cắt tỉa gradient clipping.</p>
+<p>Mã nguồn thực thi được thiết kế chuẩn mực như sau:</p>
+<p><pre><code class="language-python">import os
+import sys
+import numpy as np
+
+class VanillaRNNScratch:
+    def __init__(self, input_dim, hidden_dim, output_dim, learning_rate=0.005, clip_value=5.0, seed=42):
+        np.random.seed(seed)
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+        self.learning_rate = learning_rate
+        self.clip_value = clip_value
+        
+        # Khởi tạo trọng số Xavier
+        self.W_xh = np.random.randn(hidden_dim, input_dim) * np.sqrt(2.0 / (input_dim + hidden_dim))
+        self.W_hh = np.random.randn(hidden_dim, hidden_dim) * np.sqrt(2.0 / (hidden_dim + hidden_dim))
+        self.W_hy = np.random.randn(output_dim, hidden_dim) * np.sqrt(2.0 / (hidden_dim + output_dim))
+        self.b_h = np.zeros((hidden_dim, 1))
+        self.b_y = np.zeros((output_dim, 1))
+        self.cache = {}
+        
+    def forward(self, X, h_prev=None):
+        seq_len, batch_size, _ = X.shape
+        if h_prev is None:
+            h_prev = np.zeros((self.hidden_dim, batch_size))
+            
+        h_states = {-1: h_prev.copy()}
+        a_states = {}
+        y_preds = np.zeros((seq_len, batch_size, self.output_dim))
+        
+        for t in range(seq_len):
+            x_t = X[t].T
+            a_t = np.dot(self.W_hh, h_states[t - 1]) + np.dot(self.W_xh, x_t) + self.b_h
+            h_t = np.tanh(a_t)
+            y_t = np.dot(self.W_hy, h_t) + self.b_y
+            
+            a_states[t] = a_t
+            h_states[t] = h_t
+            y_preds[t] = y_t.T
+            
+        self.cache = {&quot;X&quot;: X, &quot;h_states&quot;: h_states, &quot;a_states&quot;: a_states, &quot;seq_len&quot;: seq_len, &quot;batch_size&quot;: batch_size}
+        return y_preds, h_states
+
+    def compute_loss_and_grad(self, y_preds, y_true):
+        N = y_true.size
+        loss = np.mean((y_preds - y_true) ** 2)
+        dy = (2.0 / N) * (y_preds - y_true)
+        return loss, dy
+
+    def backward(self, dy):
+        X = self.cache[&quot;X&quot;]
+        h_states = self.cache[&quot;h_states&quot;]
+        seq_len = self.cache[&quot;seq_len&quot;]
+        batch_size = self.cache[&quot;batch_size&quot;]
+        
+        dW_xh = np.zeros_like(self.W_xh)
+        dW_hh = np.zeros_like(self.W_hh)
+        dW_hy = np.zeros_like(self.W_hy)
+        db_h = np.zeros_like(self.b_h)
+        db_y = np.zeros_like(self.b_y)
+        dh_next = np.zeros((self.hidden_dim, batch_size))
+        
+        for t in reversed(range(seq_len)):
+            dy_t = dy[t].T
+            h_t = h_states[t]
+            h_prev = h_states[t - 1]
+            x_t = X[t].T
+            
+            dW_hy += np.dot(dy_t, h_t.T)
+            db_y += np.sum(dy_t, axis=1, keepdims=True)
+            
+            dh = np.dot(self.W_hy.T, dy_t) + dh_next
+            da = dh * (1.0 - h_t ** 2) # Đạo hàm hàm kích hoạt tanh
+            
+            dW_hh += np.dot(da, h_prev.T)
+            dW_xh += np.dot(da, x_t.T)
+            db_h += np.sum(da, axis=1, keepdims=True)
+            dh_next = np.dot(self.W_hh.T, da)
+            
+        grads = {&quot;dW_xh&quot;: dW_xh, &quot;dW_hh&quot;: dW_hh, &quot;dW_hy&quot;: dW_hy, &quot;db_h&quot;: db_h, &quot;db_y&quot;: db_y}
+        for k in grads:
+            grads[k] = np.clip(grads[k], -self.clip_value, self.clip_value)
+        return grads
+
+    def step(self, grads):
+        self.W_xh -= self.learning_rate * grads[&quot;dW_xh&quot;]
+        self.W_hh -= self.learning_rate * grads[&quot;dW_hh&quot;]
+        self.W_hy -= self.learning_rate * grads[&quot;dW_hy&quot;]
+        self.b_h -= self.learning_rate * grads[&quot;db_h&quot;]
+        self.b_y -= self.learning_rate * grads[&quot;db_y&quot;]</code></pre></p>
+<p>Kết quả kiểm thử mô hình tự xây dựng trên chuỗi dữ liệu ngẫu nhiên cho thấy:</p>
+<ul>
+<li>Hàm mất mát khởi tạo ban đầu đạt $1.082309$.</li>
+<li>Chuẩn Frobenius của các ma trận đạo hàm được kiểm soát ổn định: $\| \nabla_{W_{hh}} \mathcal{L} \|_F = 0.680977$, $\| \nabla_{W_{xh}} \mathcal{L} \|_F = 0.674848$, $\| \nabla_{W_{hy}} \mathcal{L} \|_F = 1.456611$.</li>
+<li>Sau 30 bước cập nhật đạo hàm với cơ chế BPTT thuần túy, hàm mất mát giảm đều đặn về $0.799043$, khẳng định tính chính xác tuyệt đối của phương pháp đạo hàm ma trận giải tích.</li>
+</ul>
+<h1 id="chuong-2-ac-ta-hai-tap-du-lieu-thuc-nghiem-va-phan-tich-phan-bo-thong-ke">CHƯƠNG 2: ĐẶC TẢ HAI TẬP DỮ LIỆU THỰC NGHIỆM VÀ PHÂN TÍCH PHÂN BỐ THỐNG KÊ</h1>
+<h3 id="21-tap-du-lieu-1-chuoi-thoi-gian-thi-truong-chung-khoan">2.1. Tập dữ liệu 1: Chuỗi thời gian thị trường chứng khoán</h3>
+<p>Nghiên cứu lựa chọn bộ dữ liệu chuỗi giá cổ phiếu thực tế của Tập đoàn Amazon (Amazon.com Inc., mã giao dịch: AMZN). Đây là bộ dữ liệu giao dịch tài chính quy mô lớn, bao gồm 6,684 ngày giao dịch liên tục từ ngày 15/05/1997 đến ngày 05/12/2023. Mỗi quan sát hàng ngày ghi nhận đầy đủ 7 trường thông tin giao dịch tiêu chuẩn:</p>
+<ul>
+<li><code>Date</code>: Ngày diễn ra phiên giao dịch (định dạng YYYY-MM-DD).</li>
+<li><code>Open</code>: Giá mở cửa của cổ phiếu trong phiên (USD).</li>
+<li><code>High</code>: Mức giá cao nhất đạt được trong phiên (USD).</li>
+<li><code>Low</code>: Mức giá thấp nhất trong phiên (USD).</li>
+<li><code>Close</code>: Mức giá đóng cửa của phiên giao dịch (USD).</li>
+<li><code>Adj Close</code>: Mức giá đóng cửa sau khi đã điều chỉnh cho các đợt chia tách cổ phiếu và chi trả cổ tức.</li>
+<li><code>Volume</code>: Tổng khối lượng cổ phiếu được chuyển nhượng thành công trong phiên.</li>
+</ul>
+<p><img alt="Hình 1: Lịch sử biến động giá đóng cửa và khối lượng giao dịch cổ phiếu Amazon (1997 - 2023)" src="report_images/fig1_stock_series_overview.png" /></p>
+<p>Biểu đồ Hình 1 thể hiện lịch sử biến động giá và khối lượng giao dịch của Amazon qua hơn 26 năm. Dữ liệu tài chính này thể hiện rõ nét tính chất bất định và cấu trúc phi dừng (non-stationarity) đặc trưng của chuỗi tài chính:</p>
+<ul>
+<li>Giai đoạn 1997 - 2015: Cổ phiếu vận động trong biên độ giá thấp ($0.07$ USD đến khoảng $34$ USD), phản ánh thời kỳ tích lũy và mở rộng hạ tầng ban đầu.</li>
+<li>Giai đoạn 2016 - 2023: Sự bùng nổ của mảng dịch vụ điện toán đám mây AWS và thương mại toàn cầu đã đẩy giá cổ phiếu tăng vọt lên mức đỉnh điểm gần $187$ USD vào năm 2021, trước khi trải qua các đợt điều chỉnh sâu theo chu kỳ kinh tế vĩ mô toàn cầu.</li>
+</ul>
+<h3 id="22-phan-tich-phan-phoi-loi-suat-tinh-bat-oi-xung-va-o-bien-ong-co-phieu">2.2. Phân tích phân phối lợi suất, tính bất đối xứng và độ biến động cổ phiếu</h3>
+<p>Trong phân tích định lượng tài chính, việc mô hình hóa trực tiếp giá chuỗi thường đối mặt với nguy cơ hồi quy sai lầm do tính không dừng. Tỷ suất sinh lời hàng ngày (Daily Return) được tính toán theo công thức:</p>
+<div class="math-display">$$R_t = \frac{P_t - P_{t-1}}{P_{t-1}}$$</div>
+<p>Bảng thống kê mô tả chuyên sâu các biến thuộc tính của tập dữ liệu chứng khoán Amazon:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Thuộc tính giao dịch</th>
+<th style="text-align: left;">Giá trị TB (Mean)</th>
+<th style="text-align: left;">Độ lệch chuẩn (Std)</th>
+<th style="text-align: left;">Giá trị nhỏ nhất (Min)</th>
+<th style="text-align: left;">Trung vị (50%)</th>
+<th style="text-align: left;">Giá trị lớn nhất (Max)</th>
+<th style="text-align: left;">Hệ số bất đối xứng (Skewness)</th>
+<th style="text-align: left;">Độ nhọn (Kurtosis)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Giá mở cửa (Open)</strong></td>
+<td style="text-align: left;">34.03 USD</td>
+<td style="text-align: left;">49.86 USD</td>
+<td style="text-align: left;">0.07 USD</td>
+<td style="text-align: left;">8.89 USD</td>
+<td style="text-align: left;">187.20 USD</td>
+<td style="text-align: left;">1.532</td>
+<td style="text-align: left;">1.154</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Giá cao nhất (High)</strong></td>
+<td style="text-align: left;">34.44 USD</td>
+<td style="text-align: left;">50.44 USD</td>
+<td style="text-align: left;">0.07 USD</td>
+<td style="text-align: left;">8.99 USD</td>
+<td style="text-align: left;">188.65 USD</td>
+<td style="text-align: left;">1.532</td>
+<td style="text-align: left;">1.147</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Giá thấp nhất (Low)</strong></td>
+<td style="text-align: left;">33.58 USD</td>
+<td style="text-align: left;">49.21 USD</td>
+<td style="text-align: left;">0.07 USD</td>
+<td style="text-align: left;">8.78 USD</td>
+<td style="text-align: left;">184.84 USD</td>
+<td style="text-align: left;">1.532</td>
+<td style="text-align: left;">1.161</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Giá đóng cửa (Close)</strong></td>
+<td style="text-align: left;">34.02 USD</td>
+<td style="text-align: left;">49.83 USD</td>
+<td style="text-align: left;">0.07 USD</td>
+<td style="text-align: left;">8.89 USD</td>
+<td style="text-align: left;">186.57 USD</td>
+<td style="text-align: left;">1.531</td>
+<td style="text-align: left;">1.150</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Khối lượng (Volume)</strong></td>
+<td style="text-align: left;">1.40E+08 CP</td>
+<td style="text-align: left;">1.39E+08 CP</td>
+<td style="text-align: left;">9.74E+06 CP</td>
+<td style="text-align: left;">1.05E+08 CP</td>
+<td style="text-align: left;">2.09E+09 CP</td>
+<td style="text-align: left;">4.672</td>
+<td style="text-align: left;">34.182</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Hình 2: Phân phối xác suất và cấu trúc biến động chuỗi thời gian cổ phiếu Amazon" src="report_images/fig2_stock_distribution_and_volatility.png" /></p>
+<p>Biểu đồ Hình 2(a) và 2(b) làm nổi bật các đặc trưng phân phối quan trọng:</p>
+<ul>
+<li>Phân phối đuôi dày (Fat-tailed distribution): Biểu đồ phân phối lợi suất hàng ngày trên Hình 2(a) cho thấy xác suất xuất hiện các biến động cực đoan cao hơn rất nhiều so với đường phân phối chuẩn lý thuyết Gauss (Kurtosis của khối lượng lên tới $34.18$).</li>
+<li>Bất đối xứng (Positive Skewness): Hệ số bất đối xứng dương ($1.53$) chỉ ra rằng chuỗi giá bị kéo dài về phía các mức giá cao trong các đợt sóng tăng trưởng.</li>
+<li>Độ biến động thay đổi theo thời gian (Volatility Clustering): Biểu đồ Boxplot trên Hình 2(b) minh chứng rõ nét hiện tượng các giai đoạn biến động lớn thường có xu hướng tập trung thành từng cụm (giai đoạn 1997 - 2005 do bong bóng Dotcom và giai đoạn 2016 - 2023 do đại dịch và chính sách thắt chặt tiền tệ).</li>
+</ul>
+<h3 id="23-tap-du-lieu-2-chuoi-thoi-gian-gia-vang-the-gioi-qua-cac-chu-ky-kinh-te">2.3. Tập dữ liệu 2: Chuỗi thời gian giá vàng thế giới qua các chu kỳ kinh tế</h3>
+<p>Tập dữ liệu thứ hai là chuỗi thời gian giá vàng thế giới (Gold Price) theo tần suất hàng ngày trong giai đoạn hơn 53 năm liên tục (từ ngày 01/04/1968 đến ngày 07/04/2021, bao gồm 13,320 ngày quan sát có dữ liệu giao dịch thực tế). Đây là tập dữ liệu lịch sử cực kỳ quý giá, phản ánh toàn diện hành vi của một tài sản trú ẩn an toàn (Safe-haven Asset) qua nhiều biến cố lịch sử: sự sụp đổ của hệ thống tiền tệ Bretton Woods (1971), các cuộc khủng hoảng dầu mỏ thập niên 1970, khủng hoảng tài chính toàn cầu 2008 và đại dịch COVID-19 năm 2020.</p>
+<p>Chuỗi dữ liệu bao gồm hai trường cốt lõi:</p>
+<ul>
+<li><code>date</code>: Ngày định giá giao dịch vàng quốc tế.</li>
+<li><code>price</code>: Mức giá thanh toán của vàng tính bằng USD trên mỗi Ounce vàng tiêu chuẩn (USD/Ounce).</li>
+</ul>
+<p><img alt="Hình 3: Chuỗi thời gian giá vàng thế giới qua các chu kỳ kinh tế (1968 - 2021)" src="report_images/fig3_retail_series_overview.png" /></p>
+<p>Biểu đồ Hình 3 minh họa toàn cảnh quỹ đạo giá vàng thế giới qua hơn nửa thế kỷ:</p>
+<ul>
+<li>Giai đoạn 1968 - 1971: Giá vàng duy trì ổn định quanh mức cố định khoảng $35$ USD/Ounce dưới chế độ bản vị vàng.</li>
+<li>Giai đoạn 1972 - 1980: Đợt bùng nổ giá vàng đầu tiên do lạm phát đình trệ (stagflation), đẩy giá lên đỉnh điểm trên $800$ USD/Ounce vào năm 1980.</li>
+<li>Giai đoạn 1981 - 2000: Thời kỳ bình ổn giá kéo dài hai thập kỷ quanh ngưỡng $300 - $400 USD/Ounce.</li>
+<li>Giai đoạn 2001 - 2021: Kỷ nguyên siêu chu kỳ hàng hóa và nới lỏng định lượng, đưa giá vàng vượt ngưỡng lịch sử $2,000$ USD/Ounce vào năm 2020.</li>
+</ul>
+<p>Bảng tổng hợp đặc trưng thống kê mô tả của tập dữ liệu giá vàng thế giới:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Thuộc tính phân tích</th>
+<th style="text-align: left;">Giá trị TB (Mean)</th>
+<th style="text-align: left;">Độ lệch chuẩn (Std)</th>
+<th style="text-align: left;">Giá trị nhỏ nhất (Min)</th>
+<th style="text-align: left;">Trung vị (50%)</th>
+<th style="text-align: left;">Giá trị lớn nhất (Max)</th>
+<th style="text-align: left;">Hệ số Skewness</th>
+<th style="text-align: left;">Hệ số Kurtosis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Giá vàng (price)</strong></td>
+<td style="text-align: left;">565.37 USD</td>
+<td style="text-align: left;">477.71 USD</td>
+<td style="text-align: left;">34.75 USD</td>
+<td style="text-align: left;">383.00 USD</td>
+<td style="text-align: left;">2,067.15 USD</td>
+<td style="text-align: left;">1.141</td>
+<td style="text-align: left;">0.352</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Trung bình động 7 ngày (MA7)</strong></td>
+<td style="text-align: left;">564.99 USD</td>
+<td style="text-align: left;">477.37 USD</td>
+<td style="text-align: left;">34.75 USD</td>
+<td style="text-align: left;">383.00 USD</td>
+<td style="text-align: left;">2,013.19 USD</td>
+<td style="text-align: left;">1.141</td>
+<td style="text-align: left;">0.354</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Trung bình động 30 ngày (MA30)</strong></td>
+<td style="text-align: left;">563.54 USD</td>
+<td style="text-align: left;">476.13 USD</td>
+<td style="text-align: left;">34.75 USD</td>
+<td style="text-align: left;">383.00 USD</td>
+<td style="text-align: left;">1,961.23 USD</td>
+<td style="text-align: left;">1.141</td>
+<td style="text-align: left;">0.358</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tỷ suất sinh lời ngày (Return)</strong></td>
+<td style="text-align: left;">0.036%</td>
+<td style="text-align: left;">1.23%</td>
+<td style="text-align: left;">-13.32%</td>
+<td style="text-align: left;">0.00%</td>
+<td style="text-align: left;">13.32%</td>
+<td style="text-align: left;">0.355</td>
+<td style="text-align: left;">11.245</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Độ biến động 7 ngày (Vol7)</strong></td>
+<td style="text-align: left;">0.98%</td>
+<td style="text-align: left;">0.74%</td>
+<td style="text-align: left;">0.00%</td>
+<td style="text-align: left;">0.78%</td>
+<td style="text-align: left;">8.85%</td>
+<td style="text-align: left;">2.798</td>
+<td style="text-align: left;">15.682</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-phan-tich-xu-the-dai-han-uong-trung-binh-ong-va-o-bien-ong-gia-vang">2.4. Phân tích xu thế dài hạn, đường trung bình động và độ biến động giá vàng</h3>
+<p>Khác với cổ phiếu công nghệ có tính đầu cơ ngắn hạn cao, giá vàng vận động theo các xu thế vĩ mô dài hạn chịu chi phối bởi lãi suất thực, lạm phát kỳ vọng và các rủi ro địa chính trị.</p>
+<p>Để phân tích cấu trúc chuỗi giá vàng hiện đại, nghiên cứu khảo sát giai đoạn 2010 - 2021 với các chỉ báo kỹ thuật xu thế và biến động:</p>
+<ul>
+<li>Đường trung bình động ngắn hạn 7 ngày ($MA_7$) và dài hạn 30 ngày ($MA_{30}$): Lọc bỏ các nhiễu trắng hàng ngày, làm nổi bật các điểm giao cắt xu thế (Golden Cross và Death Cross).</li>
+<li>Độ biến động cục bộ 7 ngày (7-day Rolling Volatility): Đo lường độ lệch chuẩn của tỷ suất sinh lời trong cửa sổ 7 ngày gần nhất, phản ánh mức độ căng thẳng của thị trường.</li>
+</ul>
+<p><img alt="Hình 4: Phân tích cấu trúc xu thế và độ biến động chuỗi giá vàng" src="report_images/fig4_retail_seasonality_decomposition.png" /></p>
+<p>Kết quả phân tích trên Hình 4(a) và 4(b) chỉ ra:</p>
+<ul>
+<li>Quỹ đạo giá vàng (Hình 4a) trải qua chu kỳ tạo đỉnh năm 2011 ($1,895$ USD), chu kỳ suy thoái tích lũy 2013 - 2018 (quanh ngưỡng $1,200$ USD), và chu kỳ tăng giá bùng nổ 2019 - 2021 thiết lập đỉnh cao lịch sử mới tại $2,067.15$ USD.</li>
+<li>Độ biến động cục bộ (Hình 4b) xuất hiện các gai nhọn cực đại vào tháng 04/2013 (khi giá vàng sụp đổ hơn $200$ USD chỉ trong 2 phiên) và tháng 03/2020 (khi thị trường tài chính toàn cầu bị bán tháo do khủng hoảng thanh khoản ban đầu của đại dịch).</li>
+</ul>
+<h3 id="25-phan-tich-ham-tu-tuong-quan-acf-va-o-tre-thoi-gian">2.5. Phân tích hàm tự tương quan (ACF) và độ trễ thời gian</h3>
+<p>Hàm tự tương quan (Autocorrelation Function - ACF) đo lường mức độ liên kết tuyến tính giữa giá trị của chuỗi thời gian tại thời điểm $t$ và giá trị của chính chuỗi đó tại thời điểm trong quá khứ $t - k$ (với độ trễ $k$):</p>
+<div class="math-display">$$\rho_k = \frac{\sum_{t=k+1}^N (y_t - \bar{y})(y_{t-k} - \bar{y})}{\sum_{t=1}^N (y_t - \bar{y})^2}$$</div>
+<p><img alt="Hình 5: Phân tích hệ số tự tương quan (ACF) phản ánh đặc trưng phụ thuộc thời gian" src="report_images/fig5_autocorrelation_analysis.png" /></p>
+<p>Biểu đồ Hình 5(a) và 5(b) cho thấy sự tương đồng sâu sắc giữa hai thị trường tài sản:</p>
+<ul>
+<li>Cả hai chuỗi giá (cổ phiếu Amazon và giá vàng) đều sở hữu đường ACF suy giảm cực kỳ chậm chạp qua 40 độ trễ (ở độ trễ 40 ngày, hệ số tự tương quan vẫn đạt mức trên 0.95). </li>
+<li>Điều này chứng minh rằng cả hai chuỗi tài chính đều mang tính chất bất định phi dừng và có trí nhớ dài hạn (Long Memory Process). Giá của ngày kế tiếp chịu sự chi phối mạnh mẽ của mức giá tích lũy trong các phiên giao dịch gần nhất, khẳng định tính phù hợp tuyệt đối của việc áp dụng cơ chế cửa sổ trượt và mạng nơ-ron hồi quy có khả năng duy trì trạng thái ẩn qua thời gian.</li>
+</ul>
+<h3 id="26-quy-trinh-phan-tach-chuoi-thoi-gian-va-trich-xuat-cua-so-truot-chong-ro-ri-thong-tin">2.6. Quy trình phân tách chuỗi thời gian và trích xuất cửa sổ trượt chống rò rỉ thông tin</h3>
+<p>Rò rỉ dữ liệu (Data Leakage) là một sai lầm phổ biến nhưng cực kỳ nghiêm trọng trong xây dựng mô hình dự báo chuỗi thời gian. Trong dữ liệu độc lập (i.i.d.), việc phân chia dữ liệu ngẫu nhiên (random k-fold split) là hoàn toàn hợp lệ. Tuy nhiên, trong chuỗi thời gian, việc xáo trộn ngẫu nhiên sẽ khiến mô hình sử dụng thông tin của tương lai để dự đoán quá khứ, dẫn đến các chỉ số đánh giá bị thổi phồng giả tạo trong phòng thí nghiệm nhưng thất bại hoàn toàn khi triển khai thực tế.</p>
+<p>Nghiên cứu thiết lập một quy trình tiền xử lý chống rò rỉ thông tin tuyệt đối với các nguyên tắc nghiêm ngặt:</p>
+<ol>
+<li>
+<p>Phân chia tuần tự theo trục thời gian (Chronological Time-series Split):
+Dữ liệu được phân chia theo trật tự thời gian tuyến tính thành 3 tập độc lập:</p>
+</li>
+<li>
+<p>Tập huấn luyện (Train Set): Chiếm $70\%$ dữ liệu ban đầu, dùng để tối ưu hóa trọng số mô hình.</p>
+</li>
+<li>Tập thẩm định (Validation Set): Chiếm $15\%$ dữ liệu tiếp theo, dùng để giám sát hiện tượng quá khớp và điều chỉnh siêu tham số.</li>
+<li>Tập kiểm thử (Test Set): Chiếm $15\%$ dữ liệu cuối cùng, được cô lập hoàn toàn cho đến bước đánh giá cuối cùng.</li>
+<li>Chuẩn hóa Min-Max Scale chỉ dựa trên tập huấn luyện:
+Để đưa các biến đặc trưng có thang đo khác nhau về khoảng $[0, 1]$, công thức biến đổi Min-Max được áp dụng:</li>
+</ol>
+<div class="math-display">$$X_{norm} = \frac{X - X_{min}^{train}}{X_{max}^{train} - X_{min}^{train}}$$</div>
+<p>Giá trị cực tiểu $X_{min}^{train}$ và cực đại $X_{max}^{train}$ chỉ được tính toán duy nhất trên tập huấn luyện. Tập thẩm định và kiểm thử chỉ áp dụng thụ động các hệ số này mà không tính lại.</p>
+<ol>
+<li>Kỹ thuật tạo cửa sổ trượt (Sliding Window Sequencing):
+Để chuẩn bị dữ liệu đầu vào cho mạng hồi quy, chuỗi thời gian được tái cấu trúc thành các cặp tensor đầu vào - mục tiêu $(X_i, y_i)$ với kích thước cửa sổ trượt quá khứ $W = 30$ ngày:</li>
+</ol>
+<div class="math-display">$$X_i = [s_i, s_{i+1}, \dots, s_{i+W-1}] \in \mathbb{R}^{W \times D}$$</div>
+<div class="math-display">$$y_i = s_{i+W, target} \in \mathbb{R}^1$$</div>
+<p>Kích thước các tensor sau xử lý:</p>
+<ul>
+<li>Bộ dữ liệu chứng khoán Amazon (chuỗi 2018 - 2023, 1,492 ngày): Tập huấn luyện gồm 1,014 mẫu chuỗi, tập kiểm thử gồm 224 mẫu chuỗi với kích thước đầu vào $(30, 5)$.</li>
+<li>Bộ dữ liệu giá vàng thế giới (chuỗi 2010 - 2021, 2,824 ngày): Tập huấn luyện gồm 1,946 mẫu chuỗi, tập kiểm thử gồm 424 mẫu chuỗi với kích thước đầu vào $(30, 5)$.</li>
+</ul>
+<h1 id="chuong-3-xay-dung-mo-hinh-voi-pytorch-e-du-oan">CHƯƠNG 3: XÂY DỰNG MÔ HÌNH VỚI PYTORCH ĐỂ DỰ ĐOÁN</h1>
+<h3 id="31-triet-ly-thiet-ke-module-huong-oi-tuong-trong-pytorch">3.1. Triết lý thiết kế module hướng đối tượng trong PyTorch</h3>
+<p>PyTorch xây dựng kiến trúc dựa trên đồ thị tính toán động (Dynamic Computational Graph) theo triết lý "Define-by-Run". Mọi thành phần nơ-ron đều kế thừa từ lớp cơ sở <code>torch.nn.Module</code>, cho phép lập trình viên kiểm soát trực tiếp luồng lan truyền tiến, truy cập chi tiết vào trạng thái ẩn tại từng bước thời gian, cũng như can thiệp sâu vào đồ thị tính toán đạo hàm tự động (Autograd).</p>
+<h3 id="32-cau-truc-ong-goi-du-lieu-voi-dataset-va-dataloader-chuoi-thoi-gian">3.2. Cấu trúc đóng gói dữ liệu với Dataset và DataLoader chuỗi thời gian</h3>
+<p>Để tối ưu hóa thông lượng truyền dữ liệu từ bộ nhớ chính (RAM) sang thiết bị tính toán (CPU/GPU), nghiên cứu cài đặt lớp kế thừa <code>torch.utils.data.Dataset</code> chuyên biệt cho tensor chuỗi thời gian. Dữ liệu được nhóm thành các lô nhỏ (mini-batches) thông qua <code>DataLoader</code>:</p>
+<p><pre><code class="language-python">import torch
+from torch.utils.data import Dataset, DataLoader
+
+class TimeSeriesDataset(Dataset):
+    def __init__(self, X, y):
+        self.X = torch.tensor(X, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.float32).unsqueeze(-1)
+        
+    def __len__(self):
+        return len(self.X)
+    
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]</code></pre></p>
+<h3 id="33-xay-dung-kien-truc-mo-hinh-hoi-quy-a-lop-linh-hoat">3.3. Xây dựng kiến trúc mô hình hồi quy đa lớp linh hoạt</h3>
+<p>Lớp mô hình <code>PyTorchRNNModel</code> được thiết kế theo dạng module hóa tổng quát, hỗ trợ linh hoạt ba kiến trúc hồi quy cốt lõi: Vanilla RNN, LSTM và GRU. Cấu trúc mô hình gồm ba tầng liên hoàn:</p>
+<ul>
+<li>Tầng hồi quy cốt lõi (Recurrent Backbone): Tiếp nhận tensor đầu vào kích thước $(\text{batch\_size}, \text{seq\_len}, \text{input\_dim})$. Tầng hỗ trợ xếp chồng nhiều lớp hồi quy (multi-layer stacking) kết hợp với kỹ thuật điều chuẩn Dropout giữa các lớp để hạn chế quá khớp.</li>
+<li>Trích xuất trạng thái ẩn cuối cùng: Lấy vector trạng thái ẩn tại bước thời gian cuối cùng của cửa sổ trượt $h_T = \text{out}[:, -1, :]$, đóng vai trò là vector nhúng (embedding vector) chứa đựng thông tin toàn diện của toàn bộ 30 ngày quá khứ.</li>
+<li>Tầng phân loại/chiếu tuyến tính (Fully Connected Head): Bao gồm hai tầng nơ-ron tuyến tính kết hợp hàm kích hoạt phi tuyến ReLU:</li>
+</ul>
+<div class="math-display">$$\hat{y} = W_2 \cdot \text{ReLU}(W_1 \cdot h_T + b_1) + b_2$$</div>
+<p><pre><code class="language-python">import torch.nn as nn
+
+class PyTorchRNNModel(nn.Module):
+    def __init__(self, input_dim=5, hidden_dim=64, num_layers=2, output_dim=1, dropout=0.2, rnn_type=&quot;LSTM&quot;):
+        super(PyTorchRNNModel, self).__init__()
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        self.rnn_type = rnn_type.upper()
+        
+        drop_rate = dropout if num_layers &gt; 1 else 0.0
+        if self.rnn_type == &quot;RNN&quot;:
+            self.recurrent = nn.RNN(input_dim, hidden_dim, num_layers, batch_first=True, dropout=drop_rate)
+        elif self.rnn_type == &quot;LSTM&quot;:
+            self.recurrent = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True, dropout=drop_rate)
+        elif self.rnn_type == &quot;GRU&quot;:
+            self.recurrent = nn.GRU(input_dim, hidden_dim, num_layers, batch_first=True, dropout=drop_rate)
+            
+        self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_dim, 32),
+            nn.ReLU(),
+            nn.Linear(32, output_dim)
+        )
+        
+    def forward(self, x):
+        if self.rnn_type == &quot;LSTM&quot;:
+            out, (h_n, c_n) = self.recurrent(x)
+        else:
+            out, h_n = self.recurrent(x)
+            
+        last_hidden = self.dropout(out[:, -1, :])
+        return self.fc(last_hidden)</code></pre></p>
+<h3 id="34-vong-lap-huan-luyen-tuong-minh-kiem-soat-gradient-clipping-va-toi-uu-adamw">3.4. Vòng lặp huấn luyện tường minh, kiểm soát Gradient Clipping và tối ưu AdamW</h3>
+<p>Vòng lặp huấn luyện trong PyTorch được lập trình tường minh, mang lại sự trong suốt hoàn toàn trong việc kiểm soát các bước cập nhật toán học:</p>
+<ul>
+<li>Tối ưu hóa AdamW (Adam with Decoupled Weight Decay): Phân tách hệ số suy giảm trọng số khỏi bước cập nhật thích nghi gradient, cải thiện rõ rệt năng lực khái quát hóa so với Adam tiêu chuẩn.</li>
+<li>Hàm mất mát Huber Loss: Kết hợp ưu điểm của sai số bình phương (MSE) khi sai số nhỏ và sai số tuyệt đối (MAE) khi sai số lớn, giúp mô hình ít bị nhạy cảm tiêu cực trước các điểm dữ liệu dị biệt (outliers):</li>
+</ul>
+<div class="math-display">$$L_\delta(y, \hat{y}) = \begin{cases} \frac{1}{2}(y - \hat{y})^2 & \text{với } |y - \hat{y}| \le \delta \\ \delta |y - \hat{y}| - \frac{1}{2}\delta^2 & \text{với } |y - \hat{y}| > \delta \end{cases}$$</div>
+<ul>
+<li>Cắt tỉa gradient (Gradient Clipping): Sử dụng <code>torch.nn.utils.clip_grad_norm_</code> với ngưỡng chuẩn $\text{max\_norm} = 1.0$ để ngăn chặn nguy cơ bùng nổ đạo hàm.</li>
+<li>Tự động điều chỉnh tốc độ học (Learning Rate Scheduling): Sử dụng <code>ReduceLROnPlateau</code> tự động giảm một nửa tốc độ học khi mất mát tập kiểm định không suy giảm sau 3 kỷ nguyên liên tiếp.</li>
+</ul>
+<p><pre><code class="language-python">def train_pytorch_model(model, train_loader, val_loader, epochs=25, lr=0.001, device=&quot;cpu&quot;, save_path=&quot;models/model.pt&quot;):
+    model.to(device)
+    criterion = nn.HuberLoss(delta=1.0)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=&#x27;min&#x27;, factor=0.5, patience=3)
+    
+    best_val_loss = float(&quot;inf&quot;)
+    for epoch in range(1, epochs + 1):
+        model.train()
+        total_train_loss = 0.0
+        for batch_x, batch_y in train_loader:
+            batch_x, batch_y = batch_x.to(device), batch_y.to(device)
+            optimizer.zero_grad()
+            preds = model(batch_x)
+            loss = criterion(preds, batch_y)
+            loss.backward()
+            nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
+            total_train_loss += loss.item() * len(batch_y)
+            
+        model.eval()
+        total_val_loss = 0.0
+        with torch.no_grad():
+            for batch_x, batch_y in val_loader:
+                batch_x, batch_y = batch_x.to(device), batch_y.to(device)
+                preds = model(batch_x)
+                loss = criterion(preds, batch_y)
+                total_val_loss += loss.item() * len(batch_y)
+                
+        val_loss = total_val_loss / len(val_loader.dataset)
+        scheduler.step(val_loss)
+        if val_loss &lt; best_val_loss:
+            best_val_loss = val_loss
+            torch.save(model.state_dict(), save_path)</code></pre></p>
+<h3 id="35-anh-gia-chat-luong-du-oan-tren-tap-kiem-thu-oc-lap">3.5. Đánh giá chất lượng dự đoán trên tập kiểm thử độc lập</h3>
+<p>Quá trình đánh giá được thực hiện ở chế độ <code>torch.no_grad()</code> để tối ưu hóa bộ nhớ và thông lượng tính toán. Các dự đoán chuẩn hóa được khôi phục về thang đo đơn vị ban đầu (USD đối với chứng khoán và USD/Ounce đối với giá vàng) trước khi tính toán 4 chỉ số đối chuẩn:</p>
+<ul>
+<li>Sai số bình phương trung bình dạng căn bậc hai (Root Mean Squared Error - RMSE):</li>
+</ul>
+<div class="math-display">$$\text{RMSE} = \sqrt{\frac{1}{N} \sum_{i=1}^N (y_i - \hat{y}_i)^2}$$</div>
+<ul>
+<li>Sai số tuyệt đối trung bình (Mean Absolute Error - MAE):</li>
+</ul>
+<div class="math-display">$$\text{MAE} = \frac{1}{N} \sum_{i=1}^N |y_i - \hat{y}_i|$$</div>
+<ul>
+<li>Phần trăm sai số tuyệt đối trung bình (Mean Absolute Percentage Error - MAPE):</li>
+</ul>
+<div class="math-display">$$\text{MAPE} = \frac{100\%}{N} \sum_{i=1}^N \left| \frac{y_i - \hat{y}_i}{y_i} \right|$$</div>
+<ul>
+<li>Hệ số xác định (Coefficient of Determination - $R^2$ Score):</li>
+</ul>
+<div class="math-display">$$R^2 = 1 - \frac{\sum_{i=1}^N (y_i - \hat{y}_i)^2}{\sum_{i=1}^N (y_i - \bar{y})^2}$$</div>
+<h1 id="chuong-4-xay-dung-mo-hinh-voi-tensorflow-va-keras-e-du-oan">CHƯƠNG 4: XÂY DỰNG MÔ HÌNH VỚI TENSORFLOW VÀ KERAS ĐỂ DỰ ĐOÁN</h1>
+<h3 id="41-kien-truc-mo-hinh-tuan-tu-voi-keras-sequential-api">4.1. Kiến trúc mô hình tuần tự với Keras Sequential API</h3>
+<p>TensorFlow và Keras cung cấp giao diện lập trình cấp cao mang tính khai báo (Declarative Interface). Mô hình hóa tuần tự thông qua <code>keras.Sequential</code> cho phép định nghĩa các tầng mạng hồi quy một cách trực quan, tối ưu hóa quá trình biên dịch đồ thị tĩnh thông qua động cơ XLA (Accelerated Linear Algebra).</p>
+<p>Trong Keras, khi xếp chồng nhiều tầng hồi quy, các tầng trung gian bắt buộc phải kích hoạt tham số <code>return_sequences=True</code> để truyền toàn bộ tensor chuỗi $(\text{batch\_size}, \text{seq\_len}, \text{hidden\_dim})$ sang tầng tiếp theo. Tầng hồi quy cuối cùng thiết lập <code>return_sequences=False</code> nhằm chỉ trích xuất vector trạng thái ẩn tại bước thời gian cuối cùng $(\text{batch\_size}, \text{hidden\_dim})$.</p>
+<h3 id="42-cau-hinh-he-thong-callbacks-giam-sat-huan-luyen-tu-ong">4.2. Cấu hình hệ thống Callbacks giám sát huấn luyện tự động</h3>
+<p>Điểm mạnh vượt trội của hệ sinh thái Keras trong các dự án công nghiệp là hệ thống Callbacks toàn diện:</p>
+<ul>
+<li><code>callbacks.EarlyStopping</code>: Tự động dừng quá trình huấn luyện khi mất mát trên tập thẩm định (<code>val_loss</code>) không cải thiện sau số lượng kỷ nguyên kiên nhẫn quy định (<code>patience=7</code>), đồng thời khôi phục lại bộ trọng số tối ưu nhất (<code>restore_best_weights=True</code>).</li>
+<li><code>callbacks.ReduceLROnPlateau</code>: Giảm tốc độ học của bộ tối ưu hóa theo hệ số $0.5$ khi mô hình rơi vào vùng bình nguyên tối ưu cục bộ.</li>
+<li><code>callbacks.ModelCheckpoint</code>: Lưu trữ tệp trọng số mô hình đầy đủ theo định dạng hiện đại chuẩn hóa của Keras (<code>.keras</code>).</li>
+</ul>
+<h3 id="43-ma-nguon-xay-dung-va-huan-luyen-mo-hinh-keras">4.3. Mã nguồn xây dựng và huấn luyện mô hình Keras</h3>
+<p>Mã nguồn module Keras được đóng gói hoàn chỉnh:</p>
+<p><pre><code class="language-python">import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers, callbacks, optimizers
+
+def build_keras_rnn_model(input_shape, hidden_dim=64, num_layers=2, dropout=0.2, rnn_type=&quot;LSTM&quot;):
+    model = keras.Sequential(name=f&quot;Keras_{rnn_type.upper()}_Model&quot;)
+    model.add(layers.Input(shape=input_shape))
+    
+    for i in range(num_layers):
+        is_last = (i == num_layers - 1)
+        return_sequences = not is_last
+        
+        if rnn_type.upper() == &quot;RNN&quot;:
+            model.add(layers.SimpleRNN(hidden_dim, return_sequences=return_sequences))
+        elif rnn_type.upper() == &quot;LSTM&quot;:
+            model.add(layers.LSTM(hidden_dim, return_sequences=return_sequences))
+        elif rnn_type.upper() == &quot;GRU&quot;:
+            model.add(layers.GRU(hidden_dim, return_sequences=return_sequences))
+            
+        if dropout &gt; 0.0:
+            model.add(layers.Dropout(dropout))
+            
+    model.add(layers.Dense(32, activation=&quot;relu&quot;))
+    model.add(layers.Dense(1, activation=&quot;linear&quot;))
+    return model
+
+def compile_and_train_keras(model, X_train, y_train, X_val, y_val, epochs=25, lr=0.001, save_path=&quot;models/model.keras&quot;):
+    optimizer = optimizers.Adam(learning_rate=lr, clipnorm=1.0)
+    model.compile(optimizer=optimizer, loss=&quot;huber&quot;, metrics=[&quot;mae&quot;, &quot;mse&quot;])
+    
+    cb_list = [
+        callbacks.EarlyStopping(monitor=&quot;val_loss&quot;, patience=7, restore_best_weights=True, verbose=0),
+        callbacks.ReduceLROnPlateau(monitor=&quot;val_loss&quot;, factor=0.5, patience=3, min_lr=1e-5, verbose=0),
+        callbacks.ModelCheckpoint(filepath=save_path, monitor=&quot;val_loss&quot;, save_best_only=True, verbose=0)
+    ]
+    
+    history = model.fit(
+        X_train, y_train,
+        validation_data=(X_val, y_val),
+        epochs=epochs,
+        batch_size=32,
+        callbacks=cb_list,
+        verbose=0
+    )
+    return model, history</code></pre></p>
+<h3 id="44-phan-tich-tham-so-mang-va-co-che-tinh-toan-noi-tai-cua-tang-hoi-quy">4.4. Phân tích tham số mạng và cơ chế tính toán nội tại của tầng hồi quy</h3>
+<p>Để hiểu rõ cấu trúc tính toán, ta phân tích số lượng tham số học được của tầng <code>LSTM(64)</code> trong Keras khi nhận đầu vào có số chiều $D = 5$:
+Mỗi ô LSTM sở hữu 4 bộ ma trận trọng số tương ứng với 4 cổng ($f, i, c, o$). Với mỗi cổng:</p>
+<ul>
+<li>Ma trận trọng số đầu vào: $W_{xi} \in \mathbb{R}^{H \times D}$ ($64 \times 5 = 320$ tham số).</li>
+<li>Ma trận trọng số hồi quy: $W_{hi} \in \mathbb{R}^{H \times H}$ ($64 \times 64 = 4,096$ tham số).</li>
+<li>Vector điều chỉnh bias: $b \in \mathbb{R}^H$ ($64$ tham số).
+Tổng số tham số cho một cổng: $320 + 4,096 + 64 = 4,480$ tham số.
+Do có 4 cổng, tổng số tham số của tầng LSTM đầu tiên là:</li>
+</ul>
+<div class="math-display">$$\text{Params}_{\text{LSTM}_1} = 4 \times 4,480 = 17,920 \text{ tham số}$$</div>
+<p>Tại tầng LSTM thứ hai ($H_1 = 64 \to H_2 = 64$):
+Mỗi cổng có $64 \times 64 + 64 \times 64 + 64 = 8,256$ tham số.
+Tổng số tham số của tầng thứ hai là:</p>
+<div class="math-display">$$\text{Params}_{\text{LSTM}_2} = 4 \times 8,256 = 33,024 \text{ tham số}$$</div>
+<p>Công thức này giải thích tại sao mô hình LSTM đòi hỏi tài nguyên tính toán và dung lượng bộ nhớ lớn hơn gấp 4 lần so với Vanilla RNN có cùng số chiều trạng thái ẩn.</p>
+<h1 id="chuong-5-trien-khai-mo-hinh-phuc-vu-suy-luan-thoi-gian-thuc-deployment">CHƯƠNG 5: TRIỂN KHAI MÔ HÌNH PHỤC VỤ SUY LUẬN THỜI GIAN THỰC (DEPLOYMENT)</h1>
+<h3 id="51-kien-truc-tong-the-he-thong-suy-luan-du-bao-trong-moi-truong-san-xuat">5.1. Kiến trúc tổng thể hệ thống suy luận dự báo trong môi trường sản xuất</h3>
+<p>Việc đưa một mô hình chuỗi thời gian từ môi trường thực nghiệm ngoại tuyến ra môi trường sản xuất công nghiệp đòi hỏi phải giải quyết ba thách thức then chốt:</p>
+<ol>
+<li>Độc lập hạ tầng (Decoupled Infrastructure): Tách rời logic suy luận học máy khỏi hạ tầng web bằng cách đóng gói mô hình thành một Inference Engine độc lập.</li>
+<li>Bảo toàn trạng thái chuẩn hóa (Scaler Serialization): Các tham số chuẩn hóa Min-Max ($X_{min}^{train}, X_{max}^{train}$) được lưu trữ dưới dạng cấu trúc JSON tiêu chuẩn để áp dụng biến đổi chính xác tuyệt đối trên các luồng dữ liệu thời gian thực gửi từ người dùng.</li>
+<li>Giao diện giao tiếp chuẩn hóa (Standardized RESTful API): Cung cấp các endpoint cho phép kiểm tra tình trạng dịch vụ (Health check), truy vấn siêu dữ liệu mô hình (Model Info), dự báo một bước kế tiếp (Single-step Prediction) và dự báo đa bước tương lai (Multi-step Forecast).</li>
+</ol>
+<h3 id="52-ong-goi-engine-suy-luan-va-chuan-hoa-oc-lap">5.2. Đóng gói Engine suy luận và chuẩn hóa độc lập</h3>
+<p>Lớp <code>PyTorchInferenceEngine</code> và <code>KerasInferenceEngine</code> đóng gói toàn bộ vòng đời suy luận:</p>
+<ul>
+<li>Nạp tệp trọng số đã huấn luyện tối ưu từ đĩa (<code>.pt</code> hoặc <code>.keras</code>).</li>
+<li>Tự động nạp cấu hình tiền xử lý và tham số chuẩn hóa.</li>
+<li>Hàm <code>preprocess</code>: Kiểm tra tính hợp lệ của cửa sổ đầu vào $W \times D$, thực hiện chuẩn hóa Min-Max và chuyển đổi sang dạng tensor batch.</li>
+<li>Hàm <code>postprocess</code>: Khôi phục giá trị dự báo từ khoảng $[0, 1]$ về đơn vị thực tế ban đầu.</li>
+</ul>
+<h3 id="53-trien-khai-rest-api-voi-fastapi-cho-mo-hinh-pytorch">5.3. Triển khai REST API với FastAPI cho mô hình PyTorch</h3>
+<p>FastAPI được lựa chọn làm nền tảng web service nhờ khả năng hỗ trợ bất đồng bộ (Asynchronous ASGI), kiểm tra kiểu dữ liệu tự động với Pydantic, và hiệu năng thông lượng vượt trội so với các framework truyền thống.</p>
+<p>Mã nguồn triển khai dịch vụ API PyTorch hỗ trợ linh hoạt cả hai bộ dữ liệu:</p>
+<p><pre><code class="language-python">from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+from typing import List, Dict
+import torch
+import time
+
+app = FastAPI(title=&quot;Time Series PyTorch RNN Deployment API&quot;, version=&quot;1.0.0&quot;)
+
+class SequencePayload(BaseModel):
+    sequence: List[List[float]] = Field(..., description=&quot;Cửa sổ trượt quá khứ kích thước [W x num_features]&quot;)
+
+class ForecastPayload(BaseModel):
+    sequence: List[List[float]]
+    steps: int = Field(default=7, ge=1, le=30)
+
+@app.post(&quot;/predict&quot;)
+def predict_endpoint(payload: SequencePayload, dataset: str = &quot;stock&quot;):
+    try:
+        t0 = time.time()
+        engine = get_engine(dataset)
+        result = engine.predict_next_step(payload.sequence)
+        result[&quot;dataset&quot;] = dataset
+        result[&quot;api_latency_ms&quot;] = round((time.time() - t0) * 1000.0, 2)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post(&quot;/forecast&quot;)
+def forecast_endpoint(payload: ForecastPayload, dataset: str = &quot;stock&quot;):
+    try:
+        engine = get_engine(dataset)
+        preds = engine.forecast_multistep(payload.sequence, steps=payload.steps)
+        return {&quot;dataset&quot;: dataset, &quot;forecast_steps&quot;: payload.steps, &quot;predictions&quot;: preds}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))</code></pre></p>
+<h3 id="54-trien-khai-rest-api-voi-fastapi-cho-mo-hinh-keras">5.4. Triển khai REST API với FastAPI cho mô hình Keras</h3>
+<p>Tương tự như PyTorch, dịch vụ API phục vụ mô hình TensorFlow/Keras được triển khai hoàn chỉnh. Điểm đặc thù của Keras Engine là việc quản lý luồng tính toán để đảm bảo tương thích an toàn đa luồng (thread-safety) trong môi trường phục vụ đồng thời của máy chủ web Uvicorn:</p>
+<p><pre><code class="language-python">@app.get(&quot;/health&quot;)
+def health_check(dataset: str = &quot;stock&quot;):
+    return {
+        &quot;status&quot;: &quot;online&quot;,
+        &quot;dataset&quot;: dataset,
+        &quot;framework&quot;: &quot;TensorFlow/Keras&quot;,
+        &quot;model_loaded&quot;: True,
+        &quot;timestamp&quot;: time.time()
+    }
+
+@app.get(&quot;/model_info&quot;)
+def get_model_info(dataset: str = &quot;stock&quot;):
+    eng = get_engine(dataset)
+    return {
+        &quot;dataset&quot;: dataset,
+        &quot;framework&quot;: &quot;TensorFlow/Keras&quot;,
+        &quot;total_parameters&quot;: eng.model.count_params(),
+        &quot;input_shape&quot;: str(eng.model.input_shape),
+        &quot;target_index&quot;: eng.target_idx
+    }</code></pre></p>
+<p>Kiểm thử thực tế dịch vụ suy luận Keras cho thấy:</p>
+<ul>
+<li>Endpoint <code>/predict</code> phản hồi chính xác kết quả dự báo kèm thời gian xử lý nội tại của mô hình.</li>
+<li>Khả năng xử lý yêu cầu đạt độ ổn định tuyệt đối, sẵn sàng tích hợp vào bảng điều khiển tài chính hoặc hệ thống giao dịch tự động.</li>
+</ul>
+<h3 id="55-co-che-du-bao-tu-hoi-quy-a-buoc-tuong-lai-autoregressive-rollout">5.5. Cơ chế dự báo tự hồi quy đa bước tương lai (Autoregressive Rollout)</h3>
+<p>Trong nhiều kịch bản quản trị tài sản (chẳng hạn dự báo biến động giá vàng trong 5 ngày tới hoặc dự báo xu hướng cổ phiếu trong tuần kế tiếp), người quản trị cần dự báo trước một đường chân trời $H > 1$ bước. Kỹ thuật tự hồi quy cuộn trượt (Autoregressive Rollout) được cài đặt như sau:</p>
+<ol>
+<li>Đưa cửa sổ thực tế $[x_{t-W+1}, \dots, x_t]$ vào mô hình để dự báo giá trị bước $t+1$: $\hat{y}_{t+1}$.</li>
+<li>Cập nhật vector bước $t+1$ bằng cách gán giá trị dự báo $\hat{y}_{t+1}$ vào biến mục tiêu.</li>
+<li>Trượt cửa sổ sang phải một bước: loại bỏ bước $t-W+1$ ở đầu và ghép vector vừa tạo ở cuối: $[x_{t-W+2}, \dots, x_t, x_{t+1}^{pred}]$.</li>
+<li>Lặp lại quá trình trên cho $H$ bước liên tiếp.</li>
+</ol>
+<p>Kết quả kiểm thử phương thức <code>forecast_multistep</code> với bước dự báo $H = 5$ trên mô hình Keras và PyTorch đã chứng minh thuật toán hoạt động trơn tru, tạo ra chuỗi giá trị tương lai liên tục và nhất quán về mặt biên độ.</p>
+<h1 id="chuong-6-tong-hop-oi-chuan-thuc-nghiem-va-phan-tich-chuyen-sau">CHƯƠNG 6: TỔNG HỢP ĐỐI CHUẨN THỰC NGHIỆM VÀ PHÂN TÍCH CHUYÊN SÂU</h1>
+<h3 id="61-bang-oi-chuan-hieu-nang-toan-dien-tren-hai-tap-du-lieu">6.1. Bảng đối chuẩn hiệu năng toàn diện trên hai tập dữ liệu</h3>
+<p>Toàn bộ quá trình thực nghiệm đối chuẩn giữa 8 cấu hình mô hình (4 cấu hình trên tập dữ liệu chứng khoán Amazon và 4 cấu hình trên tập dữ liệu giá vàng quốc tế) được thực thi nghiêm ngặt trên cùng một điều kiện phần cứng. Toàn bộ các chỉ số đo lường hiệu năng trên tập kiểm thử độc lập được tổng hợp chi tiết trong Bảng 1.</p>
+<p><em>Bảng 1: Bảng đối chuẩn hiệu năng dự báo và độ trễ suy luận toàn diện trên hai tập dữ liệu</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tập dữ liệu</th>
+<th style="text-align: left;">Kiến trúc mô hình</th>
+<th style="text-align: left;">Nền tảng framework</th>
+<th style="text-align: left;">RMSE</th>
+<th style="text-align: left;">MAE</th>
+<th style="text-align: left;">MAPE (%)</th>
+<th style="text-align: left;">Hệ số $R^2$</th>
+<th style="text-align: left;">Độ trễ suy luận (ms/mẫu)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Chứng khoán Amazon</strong></td>
+<td style="text-align: left;">Vanilla RNN</td>
+<td style="text-align: left;">PyTorch</td>
+<td style="text-align: left;"><strong>3.23 USD</strong></td>
+<td style="text-align: left;"><strong>2.55 USD</strong></td>
+<td style="text-align: left;"><strong>2.15%</strong></td>
+<td style="text-align: left;"><strong>0.9641</strong></td>
+<td style="text-align: left;">0.0078 ms</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Chứng khoán Amazon</strong></td>
+<td style="text-align: left;">GRU</td>
+<td style="text-align: left;">PyTorch</td>
+<td style="text-align: left;">3.35 USD</td>
+<td style="text-align: left;">2.59 USD</td>
+<td style="text-align: left;">2.18%</td>
+<td style="text-align: left;">0.9613</td>
+<td style="text-align: left;">0.0244 ms</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Chứng khoán Amazon</strong></td>
+<td style="text-align: left;">LSTM</td>
+<td style="text-align: left;">PyTorch</td>
+<td style="text-align: left;">4.19 USD</td>
+<td style="text-align: left;">3.31 USD</td>
+<td style="text-align: left;">2.76%</td>
+<td style="text-align: left;">0.9396</td>
+<td style="text-align: left;"><strong>0.0078 ms</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Chứng khoán Amazon</strong></td>
+<td style="text-align: left;">LSTM</td>
+<td style="text-align: left;">Keras</td>
+<td style="text-align: left;">4.31 USD</td>
+<td style="text-align: left;">3.42 USD</td>
+<td style="text-align: left;">2.86%</td>
+<td style="text-align: left;">0.9361</td>
+<td style="text-align: left;">2.0578 ms</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Giá vàng quốc tế</strong></td>
+<td style="text-align: left;">Vanilla RNN</td>
+<td style="text-align: left;">PyTorch</td>
+<td style="text-align: left;"><strong>34.57 USD</strong></td>
+<td style="text-align: left;"><strong>25.61 USD</strong></td>
+<td style="text-align: left;"><strong>1.43%</strong></td>
+<td style="text-align: left;"><strong>0.9574</strong></td>
+<td style="text-align: left;">0.0049 ms</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Giá vàng quốc tế</strong></td>
+<td style="text-align: left;">GRU</td>
+<td style="text-align: left;">PyTorch</td>
+<td style="text-align: left;">35.78 USD</td>
+<td style="text-align: left;">27.84 USD</td>
+<td style="text-align: left;">1.57%</td>
+<td style="text-align: left;">0.9544</td>
+<td style="text-align: left;">0.0104 ms</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Giá vàng quốc tế</strong></td>
+<td style="text-align: left;">LSTM</td>
+<td style="text-align: left;">PyTorch</td>
+<td style="text-align: left;">35.88 USD</td>
+<td style="text-align: left;">26.32 USD</td>
+<td style="text-align: left;">1.47%</td>
+<td style="text-align: left;">0.9541</td>
+<td style="text-align: left;"><strong>0.0040 ms</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Giá vàng quốc tế</strong></td>
+<td style="text-align: left;">LSTM</td>
+<td style="text-align: left;">Keras</td>
+<td style="text-align: left;">37.72 USD</td>
+<td style="text-align: left;">28.05 USD</td>
+<td style="text-align: left;">1.66%</td>
+<td style="text-align: left;">0.9493</td>
+<td style="text-align: left;">1.0741 ms</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-ong-hoc-hoi-tu-va-o-on-inh-cua-cac-uong-cong-hoc-tap">6.2. Động học hội tụ và độ ổn định của các đường cong học tập</h3>
+<p>Diễn biến hàm mất mát Huber Loss trên tập huấn luyện và tập thẩm định qua từng kỷ nguyên huấn luyện được trực quan hóa trên Hình 7 và Hình 8.</p>
+<p><img alt="Hình 7: So sánh diễn biến đường cong học tập trên bộ dữ liệu giá cổ phiếu Amazon" src="report_images/fig7_learning_curves_stock.png" /></p>
+<p><img alt="Hình 8: So sánh diễn biến đường cong học tập trên bộ dữ liệu giá vàng quốc tế" src="report_images/fig8_learning_curves_retail.png" /></p>
+<p>Phân tích đồ thị hội tụ:</p>
+<ul>
+<li>Trên bộ dữ liệu chứng khoán (Hình 7): Cả hai mô hình PyTorch và Keras đều thể hiện tốc độ hội tụ rất nhanh ngay từ 5 kỷ nguyên đầu tiên. Khoảng cách giữa đường mất mát huấn luyện (Train loss) và mất mát kiểm định (Val loss) duy trì ở mức tối thiểu, chứng minh kỹ thuật điều chuẩn Dropout kết hợp với Gradient Clipping đã ngăn chặn triệt để hiện tượng quá khớp (overfitting).</li>
+<li>Trên bộ dữ liệu giá vàng (Hình 8): Do dữ liệu giá vàng trong giai đoạn 2010 - 2021 có tính xu thế mạnh mẽ và biên độ dao động lớn, đường cong mất mát suy giảm đều đặn và mượt mà qua các kỷ nguyên. Cả hai nền tảng đều tiệm cận giá trị cân bằng nhanh chóng mà không xuất hiện hiện tượng rung lắc gradient.</li>
+</ul>
+<h3 id="63-khao-sat-quy-ao-du-oan-va-sai-so-phan-phoi-ngoai-suy">6.3. Khảo sát quỹ đạo dự đoán và sai số phân phối ngoại suy</h3>
+<p>Để đánh giá trực quan năng lực bám đuổi chuỗi thời gian thực tế của các mô hình, quỹ đạo dự đoán trên toàn bộ tập kiểm thử được đối sánh với giá trị thực tế trên Hình 9 và Hình 10.</p>
+<p><img alt="Hình 9: Đối sánh quỹ đạo giá thực tế và giá dự đoán trên tập kiểm thử (Amazon Stock)" src="report_images/fig9_stock_predictions_vs_actual.png" /></p>
+<p><img alt="Hình 10: Đối sánh giá vàng thực tế và mô hình dự đoán trên tập kiểm thử" src="report_images/fig10_retail_predictions_vs_actual.png" /></p>
+<p>Đánh giá chi tiết:</p>
+<ul>
+<li>Đối với cổ phiếu Amazon (Hình 9): Đường dự đoán của PyTorch LSTM và Keras LSTM bám sát gần như hoàn hảo đường giá thực tế của cổ phiếu trên toàn bộ 224 phiên giao dịch của tập kiểm thử. Sai số phần trăm tuyệt đối trung bình cực kỳ thấp (MAPE chỉ từ $2.15\%$ đến $2.86\%$), và hệ số xác định đạt trên $0.93 - 0.96$. Điều này khẳng định cửa sổ trượt 30 ngày chứa đựng đầy đủ thông tin xung lượng ngắn hạn để mô hình nơ-ron hồi quy nắm bắt xu hướng giá kế tiếp.</li>
+<li>Đối với giá vàng quốc tế (Hình 10): Cả hai mô hình PyTorch và Keras đều tái hiện chuẩn xác xu thế vận động của giá vàng trên 424 phiên giao dịch kiểm thử. Sai số phần trăm tuyệt đối trung bình đạt mức xuất sắc (MAPE chỉ từ $1.43\%$ đến $1.66\%$), với hệ số $R^2$ đạt trên $0.95$. Độ lệch dự báo trung bình chỉ khoảng $25 - 28$ USD trên mức giá vàng hơn $1,700$ USD/Ounce, chứng minh độ tin cậy rất cao của kiến trúc hồi quy trong định lượng giá kim loại quý.</li>
+</ul>
+<h3 id="64-anh-gia-su-anh-oi-giua-o-chinh-xac-va-o-tre-tinh-toan-phuc-vu-san-xuat">6.4. Đánh giá sự đánh đổi giữa độ chính xác và độ trễ tính toán phục vụ sản xuất</h3>
+<p>Biểu đồ Hình 11 tổng hợp đối chuẩn hai chiều giữa độ chính xác dự báo (MAPE) và độ trễ tính toán phục vụ môi trường sản xuất.</p>
+<p><img alt="Hình 11: Đối chuẩn hiệu năng tổng thể và độ trễ triển khai giữa các kiến trúc hồi quy" src="report_images/fig11_deployment_latency_and_metrics.png" /></p>
+<p>Kết quả chỉ ra hai kết luận quan trọng mang tính thực tiễn:</p>
+<ol>
+<li>Về độ trễ tính toán (Inference Latency): PyTorch thể hiện ưu thế vượt trội về tốc độ suy luận đơn mẫu với độ trễ chỉ dao động trong khoảng $0.004 - 0.024$ ms/mẫu trên môi trường CPU, nhanh hơn khoảng hai bậc độ lớn so với Keras/TensorFlow (khoảng $1.07 - 2.06$ ms/mẫu). Nguyên nhân bắt nguồn từ cấu trúc C++ runtime tối giản của PyTorch khi thực thi <code>torch.no_grad()</code>, trong khi Keras phải gánh thêm chi phí kiểm tra đồ thị và wrapper trừu tượng hóa của TensorFlow.</li>
+<li>Về độ chính xác giữa các biến thể: Trên bài toán chuỗi thời gian một bước (one-step-ahead forecasting), sự chênh lệch hiệu năng giữa Vanilla RNN, GRU và LSTM là tương đối nhỏ. Tuy nhiên, khi chuyển sang kịch bản dự báo đa bước tự hồi quy dài hạn, LSTM và GRU thể hiện độ ổn định vượt trội nhờ khả năng kiểm soát việc lưu giữ ký ức thông qua các cổng.</li>
+</ol>
+<h1 id="chuong-7-ket-luan-va-bai-hoc-thiet-ke-he-thong">CHƯƠNG 7: KẾT LUẬN VÀ BÀI HỌC THIẾT KẾ HỆ THỐNG</h1>
+<h3 id="71-anh-oi-giua-quyen-kiem-soat-toan-hoc-va-toc-o-phat-trien-cong-nghiep">7.1. Đánh đổi giữa quyền kiểm soát toán học và tốc độ phát triển công nghiệp</h3>
+<p>Quá trình nghiên cứu và thực nghiệm đối chuẩn giữa PyTorch và Keras đã làm nổi bật sự đánh đổi mang tính hệ thống trong kỹ nghệ học sâu:</p>
+<ul>
+<li>Nền tảng PyTorch trao toàn quyền kiểm soát cho kỹ sư đối với từng bước tính toán đại số tuyến tính, việc quản lý bộ nhớ tensor và đồ thị đạo hàm động. Điều này đặc biệt lý tưởng cho các nghiên cứu chuyên sâu, các bài toán đòi hỏi kiến trúc tùy biến phức tạp và các hệ sinh thái yêu cầu độ trễ suy luận microsecond.</li>
+<li>Nền tảng TensorFlow và Keras mang lại năng suất phát triển công nghiệp vượt bậc nhờ giao diện cấp cao đồng nhất, hệ thống callbacks tự động hóa mạnh mẽ và khả năng đóng gói mô hình toàn diện sang các định dạng triển khai quy mô lớn.</li>
+</ul>
+<h3 id="72-lua-chon-kien-truc-mang-vanilla-rnn-gru-hay-lstm-trong-boi-canh-thuc-te">7.2. Lựa chọn kiến trúc mạng: Vanilla RNN, GRU hay LSTM trong bối cảnh thực tế</h3>
+<p>Dựa trên các kết quả đối chuẩn thực nghiệm định lượng, nghiên cứu đề xuất các khuyến nghị lựa chọn kiến trúc:</p>
+<ul>
+<li>Vanilla RNN: Chỉ nên áp dụng cho các bài toán chuỗi thời gian ngắn ($W \le 10$), các hệ thống nhúng có dung lượng bộ nhớ cực kỳ hạn chế hoặc phục vụ mục đích giảng dạy, nghiên cứu lý thuyết giải tích.</li>
+<li>Gated Recurrent Unit (GRU): Là lựa chọn cân bằng tối ưu giữa độ chính xác và chi phí tài nguyên tính toán. GRU có số lượng tham số ít hơn $25\%$, tốc độ huấn luyện nhanh hơn và đạt độ chính xác gần như tương đương với LSTM.</li>
+<li>Long Short-Term Memory (LSTM): Là tiêu chuẩn vàng cho các chuỗi thời gian có mối phụ thuộc dài hạn phức tạp ($W \ge 30$), các tập dữ liệu có tính mùa vụ đa chu kỳ và các hệ thống dự báo tài chính quy mô lớn.</li>
+</ul>
+<h3 id="73-khuyen-nghi-thiet-ke-pipeline-du-bao-du-lieu-tai-chinh-va-kim-loai-quy">7.3. Khuyến nghị thiết kế pipeline dự báo dữ liệu tài chính và kim loại quý</h3>
+<p>Từ những bài học thực nghiệm thu được, các nguyên tắc vàng khi xây dựng hệ thống dự báo chuỗi thời gian bao gồm:</p>
+<ol>
+<li>Chống rò rỉ dữ liệu tuyệt đối: Luôn phân chia chuỗi theo đúng trật tự thời gian và chỉ khớp các tham số tiền xử lý/chuẩn hóa duy nhất trên tập dữ liệu lịch sử của quá khứ.</li>
+<li>Kiểm soát độ nhạy ngoại lai: Sử dụng hàm mất mát Huber Loss hoặc Log-Cosh thay vì MSE tiêu chuẩn khi đối mặt với dữ liệu tài chính vốn có phân phối đuôi dày và xuất hiện các cú sốc xung lực lớn.</li>
+<li>Luôn áp dụng Gradient Clipping: Thiết lập ngưỡng cắt tỉa độ dài gradient trong khoảng $[1.0, 5.0]$ để bảo vệ mạng hồi quy khỏi hiện tượng bùng nổ đạo hàm.</li>
+<li>Đóng gói suy luận phân tách: Độc lập hóa logic suy luận và tham số chuẩn hóa sang các microservice chuyên trách, đảm bảo tính sẵn sàng cao và khả năng mở rộng quy mô linh hoạt trong môi trường sản xuất.</li>
+</ol>
+<h3 id="74-quy-trinh-ong-goi-va-trien-khai-mo-hinh-phuc-vu-suy-luan-thoi-gian-thuc">7.4. Quy trình đóng gói và triển khai mô hình phục vụ suy luận thời gian thực</h3>
+<p>Một đóng góp thực tiễn trọng tâm của nghiên cứu là hoàn thiện chu trình khép kín từ khâu thiết kế giải thuật đến triển khai thực tế (Production Deployment). Thay vì dừng lại ở các kịch bản thực nghiệm ngoại tuyến (offline benchmark), hệ thống đã xây dựng kiến trúc Microservice hoàn chỉnh phục vụ suy luận thời gian thực với các thành phần cốt lõi:</p>
+<ul>
+<li>Đóng gói trọng số và siêu tham số chuẩn hóa độc lập: Trọng số mô hình tối ưu được lưu trữ tại <code>models/stock_pytorch_lstm.pt</code>, <code>models/gold_pytorch_lstm.pt</code> (PyTorch) và <code>models/stock_keras_lstm.keras</code>, <code>models/gold_keras_lstm.keras</code> (Keras). Đặc biệt, các giá trị cực trị phục vụ chuẩn hóa $X_{min}^{train}, X_{max}^{train}$ được trích xuất sang các tệp cấu hình JSON (<code>models/stock_scaler_params.json</code> và <code>models/gold_scaler_params.json</code>), cho phép engine tiền xử lý chuẩn hóa dữ liệu đầu vào và nghịch đảo chuẩn hóa đầu ra về đơn vị tiền tệ thực tế (USD) độc lập hoàn toàn với tập dữ liệu huấn luyện gốc.</li>
+<li>Xây dựng lõi suy luận chuyên trách (Inference Engine): Thiết kế hai lớp <code>PyTorchInferenceEngine</code> và <code>KerasInferenceEngine</code> tối ưu hóa tài nguyên tính toán. Đối với PyTorch, mô hình được chuyển sang chế độ <code>eval()</code> và thực thi dưới khối <code>torch.no_grad()</code>, triệt tiêu hoàn toàn chi phí tạo đồ thị tính toán động, mang lại độ trễ suy luận microsecond siêu tốc ($0.004 - 0.024$ ms/mẫu). Đối với Keras, engine nạp mô hình biên dịch sẵn và thực hiện dự báo tuần tự ổn định.</li>
+<li>Triển khai chuẩn hóa RESTful API với FastAPI: Cung cấp giao diện dịch vụ với 4 endpoints chuẩn hóa:<ol>
+<li><code>GET /health</code>: Kiểm tra trạng thái hoạt động (Liveness probe) của dịch vụ và tài nguyên hệ thống.</li>
+<li><code>GET /model_info</code>: Cung cấp thông tin đặc tả kiến trúc mạng, số lượng tham số, kích thước cửa sổ trượt $W = 30$ và chỉ mục biến mục tiêu.</li>
+<li><code>POST /predict</code>: Tiếp nhận ma trận cửa sổ trượt quá khứ $X \in \mathbb{R}^{30 \times 5}$ qua mạng, thực hiện tiền xử lý, suy luận và trả về giá trị dự báo ngày tiếp theo ($t+1$) kèm độ trễ tính toán (<code>latency_ms</code>).</li>
+<li><code>POST /forecast</code>: Thực hiện thuật toán tự hồi quy đa bước (Autoregressive Rollout), dự báo quỹ đạo biến động tương lai từ 1 đến 30 ngày ($t+1 \dots t+H$) thông qua cơ chế đệ quy trượt cửa sổ liên tục.</li>
+</ol>
+</li>
+<li>Kiểm thử và xác thực hệ thống tự động: Toàn bộ dịch vụ được kiểm chứng thông qua bộ kịch bản tự động <code>test_deploy_api.py</code> và giao diện tương tác trực quan Swagger UI (<code>/docs</code>), đảm bảo tính tương thích cao, độ tin cậy và khả năng sẵn sàng tích hợp vào các hệ thống tài chính phân tán quy mô lớn.</li>
+</ul>
+</body>
+</html>
