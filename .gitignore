@@ -13,6 +13,15 @@ env/
 .idea/
 .vscode/
 
+# Local report drafts & auxiliary generation scripts
+BAO_CAO_ASSIGNMENT_04.html
+BAO_CAO_ASSIGNMENT_04.md
+report_a06.*
+convert_report.py
+test_deploy_api.py
+report_images/
+src/eda_visualizer.py
+
 # Temporary / Scratch files
 scratch/
 scratch_*.png
